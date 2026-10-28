@@ -7,9 +7,9 @@
   <title>Personal Media Hub</title>
 
   <!-- Modular CSS Architecture -->
-  <link rel="stylesheet" href="./styles/variables.css">
-  <link rel="stylesheet" href="./styles/layout.css">
-  <link rel="stylesheet" href="./styles/components.css">
+  <link rel="stylesheet" href="./styles/variables.css?v=1.0.2">
+  <link rel="stylesheet" href="./styles/layout.css?v=1.0.2">
+  <link rel="stylesheet" href="./styles/components.css?v=1.0.2">
 </head>
 <body>
 
@@ -31,6 +31,10 @@
         <video id="media-player" controls playsinline preload="auto">
           <p>Tu navegador no soporta el reproductor de video HTML5.</p>
         </video>
+        <div id="player-error" class="player-error hidden">
+          <p class="player-error-text">No se pudo conectar al video.</p>
+          <button id="player-retry-btn" class="action-btn">Reintentar</button>
+        </div>
       </div>
 
       <!-- Now Playing Metadata Bar -->
@@ -72,6 +76,6 @@
   </main>
 
   <!-- ES6 Module Entrypoint -->
-  <script type="module" src="./src/app.js"></script>
+  <script type="module" src="./src/app.js?v=1.0.2"></script>
 </body>
 </html>

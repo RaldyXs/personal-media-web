@@ -45,6 +45,35 @@ video {
   height: 100%;
   outline: none;
   background: #000;
+  object-fit: contain;
+}
+
+.player-error {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(10, 10, 10, 0.92);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  gap: 16px;
+  text-align: center;
+  z-index: 5;
+}
+
+.player-error.hidden {
+  display: none !important;
+}
+
+.player-error-text {
+  font-size: 0.88rem;
+  color: var(--text-muted);
+  max-width: 300px;
+  line-height: 1.4;
 }
 
 /* NOW PLAYING BAR */
