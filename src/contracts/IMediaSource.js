@@ -24,15 +24,17 @@ export class MediaItem {
    * @param {string} params.series
    * @param {number} params.episodeNumber
    * @param {string} params.streamUrl
+   * @param {string} [params.posterUrl]
    * @param {number} [params.size]
    */
-  constructor({ id, filename, title, series, episodeNumber, streamUrl, size }) {
+  constructor({ id, filename, title, series, episodeNumber, streamUrl, posterUrl, size }) {
     this.id = id;
     this.filename = filename;
     this.title = title;
     this.series = series;
     this.episodeNumber = episodeNumber;
     this.streamUrl = streamUrl;
+    this.posterUrl = posterUrl || '';
     this.size = size || 0;
   }
 }

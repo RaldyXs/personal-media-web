@@ -39,7 +39,8 @@ export class MediaRepository extends IMediaRepository {
           title: 'Capítulo 1',
           series: 'Darling in the Franxx',
           episodeNumber: 1,
-          streamUrl: this.connector.buildStreamUrl('/videos/1.mp4')
+          streamUrl: this.connector.buildStreamUrl('/videos/1.mp4'),
+          posterUrl: this.connector.buildStreamUrl('/videos/1.jpg')
         })
       ];
     }
@@ -57,6 +58,7 @@ export class MediaRepository extends IMediaRepository {
       .filter(item => item.type === 'file' && validExtensions.test(item.name))
       .map(item => {
         const parsed = this._extractMetadata(item.name);
+        const cleanBase = item.name.replace(/\.[^/.]+$/, '');
         return new MediaItem({
           id: item.name,
           filename: item.name,
@@ -64,6 +66,7 @@ export class MediaRepository extends IMediaRepository {
           series: parsed.series,
           episodeNumber: parsed.episodeNumber,
           streamUrl: this.connector.buildStreamUrl(`/videos/${encodeURIComponent(item.name)}`),
+          posterUrl: this.connector.buildStreamUrl(`/videos/${encodeURIComponent(cleanBase)}.jpg`),
           size: item.size || 0
         });
       })
