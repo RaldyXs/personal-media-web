@@ -1,0 +1,245 @@
+/* HEADER COMPONENTS */
+.header-brand {
+  font-size: 0.95rem;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  color: var(--text-primary);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.header-meta {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+/* PLAYER COMPONENT */
+.player-container {
+  position: relative;
+  background: #000;
+  width: 100%;
+}
+
+@media (min-width: 768px) {
+  .player-container {
+    border-radius: var(--radius-md);
+    overflow: hidden;
+    border: 1px solid var(--border-subtle);
+  }
+}
+
+.video-aspect-ratio {
+  position: relative;
+  width: 100%;
+  padding-top: 56.25%; /* 16:9 Aspect Ratio */
+  background: #000;
+}
+
+video {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  outline: none;
+  background: #000;
+}
+
+/* NOW PLAYING BAR */
+.now-playing-panel {
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--border-subtle);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  background: var(--bg-secondary);
+}
+
+.now-playing-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.now-playing-title {
+  font-size: 1.05rem;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  color: var(--text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.now-playing-subtitle {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+.action-btn {
+  font-size: 0.76rem;
+  color: var(--text-muted);
+  text-decoration: none;
+  padding: 6px 14px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border-subtle);
+  background: transparent;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  white-space: nowrap;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.action-btn:hover {
+  color: var(--text-primary);
+  border-color: var(--border-active);
+  background: var(--bg-tertiary);
+}
+
+/* CATALOG & LIBRARY SECTION */
+.catalog-section {
+  padding: 24px 20px;
+}
+
+.catalog-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 14px;
+  gap: 12px;
+}
+
+.catalog-title {
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-dim);
+}
+
+.catalog-search-wrapper {
+  position: relative;
+  max-width: 240px;
+  width: 100%;
+}
+
+.catalog-search-input {
+  width: 100%;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  padding: 6px 12px;
+  font-size: 0.8rem;
+  color: var(--text-primary);
+  outline: none;
+  transition: border-color var(--transition-fast);
+}
+
+.catalog-search-input:focus {
+  border-color: var(--border-active);
+}
+
+.catalog-search-input::placeholder {
+  color: var(--text-dim);
+}
+
+/* LIST OF EPISODES / ITEMS */
+.catalog-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.catalog-item {
+  display: flex;
+  align-items: center;
+  padding: 12px 14px;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  cursor: pointer;
+  transition: background var(--transition-fast), color var(--transition-fast);
+  user-select: none;
+}
+
+.catalog-item:hover {
+  background: var(--bg-secondary);
+}
+
+.catalog-item:active {
+  background: var(--bg-tertiary);
+}
+
+.catalog-item.active {
+  background: var(--bg-secondary);
+}
+
+.item-index {
+  font-size: 0.85rem;
+  font-variant-numeric: tabular-nums;
+  color: var(--text-dim);
+  width: 34px;
+  flex-shrink: 0;
+  font-weight: 500;
+}
+
+.catalog-item.active .item-index {
+  color: var(--text-primary);
+}
+
+.item-main {
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.item-name {
+  font-size: 0.92rem;
+  font-weight: 450;
+  color: var(--text-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.catalog-item.active .item-name {
+  color: var(--text-primary);
+  font-weight: 500;
+}
+
+.item-status-text {
+  font-size: 0.75rem;
+  color: var(--text-dim);
+}
+
+.catalog-item.active .item-status-text {
+  color: var(--text-muted);
+}
+
+.item-icon {
+  color: var(--text-dim);
+  opacity: 0;
+  transition: opacity var(--transition-fast);
+  display: flex;
+  align-items: center;
+}
+
+.catalog-item:hover .item-icon,
+.catalog-item.active .item-icon {
+  opacity: 1;
+  color: var(--text-primary);
+}
+
+.empty-state {
+  padding: 40px 16px;
+  text-align: center;
+  font-size: 0.85rem;
+  color: var(--text-dim);
+}

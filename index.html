@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="description" content="Personal Media Streaming Web Client">
+  <title>Personal Media Hub</title>
+
+  <!-- Modular CSS Architecture -->
+  <link rel="stylesheet" href="./styles/variables.css">
+  <link rel="stylesheet" href="./styles/layout.css">
+  <link rel="stylesheet" href="./styles/components.css">
+</head>
+<body>
+
+  <!-- Minimalist Header -->
+  <header>
+    <div class="header-brand">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <polygon points="5 3 19 12 5 21 5 3"></polygon>
+      </svg>
+      <span>Media Stream</span>
+    </div>
+    <div class="header-meta" id="catalog-count">Cargando...</div>
+  </header>
+
+  <main>
+    <!-- Cinema Video Player -->
+    <section class="player-container" aria-label="Reproductor principal">
+      <div class="video-aspect-ratio">
+        <video id="media-player" controls playsinline preload="auto">
+          <p>Tu navegador no soporta el reproductor de video HTML5.</p>
+        </video>
+      </div>
+
+      <!-- Now Playing Metadata Bar -->
+      <div class="now-playing-panel">
+        <div class="now-playing-info">
+          <h1 class="now-playing-title" id="now-title">Cargando contenido...</h1>
+          <div class="now-playing-subtitle" id="now-subtitle">Librería multimedia</div>
+        </div>
+        <a id="download-btn" href="#" download class="action-btn" title="Descargar archivo para ver sin conexión">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+            <polyline points="7 10 12 15 17 10"></polyline>
+            <line x1="12" y1="15" x2="12" y2="3"></line>
+          </svg>
+          <span>Descargar</span>
+        </a>
+      </div>
+    </section>
+
+    <!-- Interactive Media Catalog -->
+    <section class="catalog-section" aria-label="Catálogo de medios">
+      <div class="catalog-header">
+        <h2 class="catalog-title">Catálogo Disponible</h2>
+        <div class="catalog-search-wrapper">
+          <input
+            type="search"
+            id="catalog-search"
+            class="catalog-search-input"
+            placeholder="Buscar por serie o título..."
+            aria-label="Buscar en la librería"
+          >
+        </div>
+      </div>
+
+      <div class="catalog-list" id="catalog-list">
+        <div class="empty-state">Buscando medios en el servidor...</div>
+      </div>
+    </section>
+  </main>
+
+  <!-- ES6 Module Entrypoint -->
+  <script type="module" src="./src/app.js"></script>
+</body>
+</html>
