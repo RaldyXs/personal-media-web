@@ -14,7 +14,7 @@ export const AppConfig = {
      * When hosted on the same origin (e.g., Nginx), empty string uses relative paths.
      * Can be dynamically overridden via query string `?backend=https://...` or Storage.
      */
-    defaultBaseUrl: '',
+    defaultBaseUrl: 'https://coffee-hesitant-elk.ngrok-free.dev',
     endpoints: {
       videosIndex: '/videos/'
     },
