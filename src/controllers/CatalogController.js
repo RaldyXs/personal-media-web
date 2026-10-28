@@ -22,6 +22,7 @@ export class CatalogController {
     this.isPlaying = false;
 
     this._bindSearch();
+    this._bindListDelegation();
   }
 
   setItems(items) {
@@ -89,22 +90,29 @@ export class CatalogController {
         </div>
       `;
     }).join('');
-
-    // Delegate click events
-    this.listContainer.querySelectorAll('.catalog-item').forEach(el => {
-      el.addEventListener('click', () => {
-        const id = el.getAttribute('data-id');
-        const selected = this.items.find(i => i.id === id);
-        if (selected && this.onSelect) {
-          this.onSelect(selected);
-        }
-      });
-    });
   }
 
   _bindSearch() {
     if (this.searchInput) {
       this.searchInput.addEventListener('input', () => this.render());
     }
+  }
+
+  /**
+   * Event delegation on listContainer: Single listener bound once for lifetime.
+   * High performance, zero DOM listener churn.
+   * @private
+   */
+  _bindListDelegation() {
+    if (!this.listContainer) return;
+    this.listContainer.addEventListener('click', (event) => {
+      const itemEl = event.target.closest('.catalog-item');
+      if (!itemEl) return;
+      const id = itemEl.getAttribute('data-id');
+      const selected = this.items.find(i => i.id === id);
+      if (selected && this.onSelect) {
+        this.onSelect(selected);
+      }
+    });
   }
 }
