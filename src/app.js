@@ -1,9 +1,9 @@
-import { AppConfig } from './config/app.config.js?v=1.0.2';
-import { StorageService } from './services/StorageService.js?v=1.0.2';
-import { StreamConnector } from './services/StreamConnector.js?v=1.0.2';
-import { MediaRepository } from './services/MediaRepository.js?v=1.0.2';
-import { PlayerController } from './controllers/PlayerController.js?v=1.0.2';
-import { CatalogController } from './controllers/CatalogController.js?v=1.0.2';
+import { AppConfig } from './config/app.config.js?v=1.1.0';
+import { StorageService } from './services/StorageService.js?v=1.1.0';
+import { StreamConnector } from './services/StreamConnector.js?v=1.1.0';
+import { MediaRepository } from './services/MediaRepository.js?v=1.1.0';
+import { PlayerController } from './controllers/PlayerController.js?v=1.1.0';
+import { CatalogController } from './controllers/CatalogController.js?v=1.1.0';
 
 /**
  * AppBootstrap

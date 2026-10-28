@@ -5,7 +5,7 @@
 export const AppConfig = {
   app: {
     name: 'Personal Media Hub',
-    version: '1.0.0',
+    version: '1.1.0',
     description: 'Minimalist, high-performance streaming client'
   },
   api: {
