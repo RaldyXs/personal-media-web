@@ -31,12 +31,16 @@ export class StreamConnector {
       return sanitized;
     }
 
+    if (AppConfig.api.defaultBaseUrl) {
+      return AppConfig.api.defaultBaseUrl.replace(/\/+$/, '');
+    }
+
     const storedBackend = this.storage.get(AppConfig.storageKeys.customBackendUrl);
     if (storedBackend) {
       return storedBackend.replace(/\/+$/, '');
     }
 
-    return AppConfig.api.defaultBaseUrl;
+    return '';
   }
 
   /**
