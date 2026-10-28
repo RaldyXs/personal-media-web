@@ -9,13 +9,33 @@ export class PlayerController {
   /**
    * @param {HTMLVideoElement} videoElement
    * @param {import('../contracts/IStorage.js').IStorageProvider} storage
+   * @param {HTMLElement} [errorElement]
    */
-  constructor(videoElement, storage) {
+  constructor(videoElement, storage, errorElement = null) {
     this.video = videoElement;
     this.storage = storage;
+    this.errorElement = errorElement;
     this.activeItem = null;
+    this.stateListeners = [];
 
     this._bindEvents();
+  }
+
+  /**
+   * Subscribes to playback state updates.
+   * @param {Function} callback
+   */
+  onStateChange(callback) {
+    this.stateListeners.push(callback);
+  }
+
+  /**
+   * @private
+   */
+  _emitState(state) {
+    this.stateListeners.forEach(cb => {
+      try { cb(state); } catch (e) { console.error(e); }
+    });
   }
 
   /**
@@ -26,6 +46,14 @@ export class PlayerController {
   loadMedia(mediaItem, autoPlay = false) {
     if (!mediaItem) return;
     this.activeItem = mediaItem;
+    this._hideError();
+
+    // Set poster preview if available
+    if (mediaItem.posterUrl) {
+      this.video.poster = mediaItem.posterUrl;
+    } else {
+      this.video.removeAttribute('poster');
+    }
 
     // Set media source
     this.video.src = mediaItem.streamUrl;
@@ -51,9 +79,33 @@ export class PlayerController {
   }
 
   /**
+   * Retries loading the active media item.
+   */
+  retry() {
+    if (this.activeItem) {
+      this.loadMedia(this.activeItem, true);
+    }
+  }
+
+  /**
    * @private
    */
   _bindEvents() {
+    this.video.addEventListener('play', () => {
+      this._hideError();
+      this._emitState({ isPlaying: true, item: this.activeItem });
+    });
+
+    this.video.addEventListener('pause', () => {
+      this._emitState({ isPlaying: false, item: this.activeItem });
+    });
+
+    this.video.addEventListener('error', () => {
+      console.error('[PlayerController] Media playback error:', this.video.error);
+      this._showError('No se pudo reproducir el video. Verifica la conexión con el servidor.');
+      this._emitState({ isPlaying: false, error: true, item: this.activeItem });
+    });
+
     // Throttled time progress saving
     let lastSavedTime = 0;
     this.video.addEventListener('timeupdate', () => {
@@ -74,6 +126,27 @@ export class PlayerController {
       if (this.activeItem) {
         this.storage.remove(`${AppConfig.storageKeys.itemProgressPrefix}${this.activeItem.id}`);
       }
+      this._emitState({ isPlaying: false, ended: true, item: this.activeItem });
     });
+  }
+
+  /**
+   * @private
+   */
+  _showError(message) {
+    if (this.errorElement) {
+      const msgEl = this.errorElement.querySelector('.player-error-text');
+      if (msgEl) msgEl.textContent = message;
+      this.errorElement.classList.remove('hidden');
+    }
+  }
+
+  /**
+   * @private
+   */
+  _hideError() {
+    if (this.errorElement) {
+      this.errorElement.classList.add('hidden');
+    }
   }
 }

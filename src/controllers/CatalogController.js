@@ -19,6 +19,7 @@ export class CatalogController {
 
     this.items = [];
     this.activeId = null;
+    this.isPlaying = false;
 
     this._bindSearch();
   }
@@ -28,9 +29,17 @@ export class CatalogController {
     this.render();
   }
 
-  setActive(itemId) {
+  setActive(itemId, isPlaying = false) {
     this.activeId = itemId;
+    this.isPlaying = isPlaying;
     this.render();
+  }
+
+  setPlaybackState(isPlaying) {
+    if (this.isPlaying !== isPlaying) {
+      this.isPlaying = isPlaying;
+      this.render();
+    }
   }
 
   render() {
@@ -53,20 +62,26 @@ export class CatalogController {
 
     this.listContainer.innerHTML = filtered.map((item, index) => {
       const isActive = item.id === this.activeId;
+      const isCurrentlyPlaying = isActive && this.isPlaying;
+      let statusText = 'Tocar para ver';
+      if (isActive) {
+        statusText = isCurrentlyPlaying ? 'En reproducción' : 'Listo para reproducir';
+      }
+
       const indexStr = item.episodeNumber < 100
         ? String(item.episodeNumber).padStart(2, '0')
         : String(item.episodeNumber);
 
       return `
-        <div class="catalog-item ${isActive ? 'active' : ''}" data-id="${item.id}" data-index="${index}">
+        <div class="catalog-item ${isActive ? 'active' : ''} ${isCurrentlyPlaying ? 'playing' : ''}" data-id="${item.id}" data-index="${index}">
           <span class="item-index">${indexStr}</span>
           <div class="item-main">
             <span class="item-name">${item.series} · ${item.title}</span>
-            <span class="item-status-text">${isActive ? 'En reproducción' : 'Tocar para ver'}</span>
+            <span class="item-status-text">${statusText}</span>
           </div>
           <div class="item-icon">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
-              ${isActive
+              ${isCurrentlyPlaying
                 ? '<rect x="6" y="5" width="4" height="14" rx="1"/><rect x="14" y="5" width="4" height="14" rx="1"/>'
                 : '<path d="M8 5v14l11-7z"/>'}
             </svg>
