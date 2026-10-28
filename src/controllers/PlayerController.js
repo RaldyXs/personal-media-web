@@ -128,6 +128,44 @@ export class PlayerController {
       }
       this._emitState({ isPlaying: false, ended: true, item: this.activeItem });
     });
+
+    // Keyboard controls for desktop (Space = Play/Pause, Arrows = Seek 10s, F = Fullscreen, M = Mute)
+    window.addEventListener('keydown', (e) => {
+      if (e.target && (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA')) {
+        return;
+      }
+
+      switch (e.code) {
+        case 'Space':
+          e.preventDefault();
+          if (this.video.paused) {
+            this.video.play().catch(() => {});
+          } else {
+            this.video.pause();
+          }
+          break;
+        case 'ArrowLeft':
+          e.preventDefault();
+          this.video.currentTime = Math.max(0, this.video.currentTime - 10);
+          break;
+        case 'ArrowRight':
+          e.preventDefault();
+          this.video.currentTime = Math.min(this.video.duration || Infinity, this.video.currentTime + 10);
+          break;
+        case 'KeyF':
+          e.preventDefault();
+          if (!document.fullscreenElement) {
+            this.video.requestFullscreen?.().catch(() => {});
+          } else {
+            document.exitFullscreen?.().catch(() => {});
+          }
+          break;
+        case 'KeyM':
+          e.preventDefault();
+          this.video.muted = !this.video.muted;
+          break;
+      }
+    });
   }
 
   /**
