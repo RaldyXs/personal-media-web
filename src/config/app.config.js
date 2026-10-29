@@ -5,7 +5,7 @@
 export const AppConfig = {
   app: {
     name: 'Personal Media Hub',
-    version: '1.1.0',
+    version: '1.1.1',
     description: 'Minimalist, high-performance streaming client'
   },
   api: {
@@ -14,7 +14,7 @@ export const AppConfig = {
      * When hosted on the same origin (e.g., Nginx), empty string uses relative paths.
      * Can be dynamically overridden via query string `?backend=https://...` or Storage.
      */
-    defaultBaseUrl: 'https://consumption-columnists-added-shareware.trycloudflare.com',
+    defaultBaseUrl: 'https://scripting-imagination-mother-forget.trycloudflare.com',
     endpoints: {
       videosIndex: '/videos/'
     },
