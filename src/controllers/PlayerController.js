@@ -58,14 +58,27 @@ export class PlayerController {
     // Set media source
     this.video.src = mediaItem.streamUrl;
 
-    // Restore saved playback position
-    const savedTime = this.storage.getNumber(
-      `${AppConfig.storageKeys.itemProgressPrefix}${mediaItem.id}`,
-      0
-    );
+    // Restore saved playback position safely once metadata is available
+    const applySavedPosition = () => {
+      const savedTime = this.storage.getNumber(
+        `${AppConfig.storageKeys.itemProgressPrefix}${mediaItem.id}`,
+        0
+      );
+      if (savedTime > AppConfig.player.minPlaybackResumeSeconds) {
+        try {
+          if (this.video.duration && savedTime < this.video.duration) {
+            this.video.currentTime = savedTime;
+          }
+        } catch (e) {
+          console.warn('[PlayerController] Error al restaurar posición de reproducción:', e);
+        }
+      }
+    };
 
-    if (savedTime > AppConfig.player.minPlaybackResumeSeconds) {
-      this.video.currentTime = savedTime;
+    if (this.video.readyState >= 1) {
+      applySavedPosition();
+    } else {
+      this.video.addEventListener('loadedmetadata', applySavedPosition, { once: true });
     }
 
     // Persist as last played
@@ -83,7 +96,11 @@ export class PlayerController {
    */
   retry() {
     if (this.activeItem) {
-      this.loadMedia(this.activeItem, true);
+      this._hideError();
+      const current = this.activeItem;
+      this.video.src = '';
+      this.video.load();
+      this.loadMedia(current, true);
     }
   }
 
@@ -101,7 +118,11 @@ export class PlayerController {
     });
 
     this.video.addEventListener('error', () => {
-      console.error('[PlayerController] Media playback error:', this.video.error);
+      const err = this.video.error;
+      // Error code 1 is MEDIA_ERR_ABORTED (operation intentionally stopped)
+      if (err && err.code === 1) return;
+
+      console.error('[PlayerController] Media playback error:', err);
       this._showError('No se pudo reproducir el video. Verifica la conexión con el servidor.');
       this._emitState({ isPlaying: false, error: true, item: this.activeItem });
     });
