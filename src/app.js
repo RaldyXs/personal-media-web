@@ -1,9 +1,9 @@
-import { AppConfig } from './config/app.config.js?v=1.1.3';
-import { StorageService } from './services/StorageService.js?v=1.1.3';
-import { StreamConnector } from './services/StreamConnector.js?v=1.1.3';
-import { MediaRepository } from './services/MediaRepository.js?v=1.1.3';
-import { PlayerController } from './controllers/PlayerController.js?v=1.1.3';
-import { CatalogController } from './controllers/CatalogController.js?v=1.1.3';
+import { AppConfig } from './config/app.config.js?v=1.2.0';
+import { StorageService } from './services/StorageService.js?v=1.2.0';
+import { StreamConnector } from './services/StreamConnector.js?v=1.2.0';
+import { MediaRepository } from './services/MediaRepository.js?v=1.2.0';
+import { PlayerController } from './controllers/PlayerController.js?v=1.2.0';
+import { CatalogController } from './controllers/CatalogController.js?v=1.2.0';
 
 /**
  * AppBootstrap
@@ -19,6 +19,7 @@ export class AppBootstrap {
     // 2. DOM Elements
     const videoElement = document.getElementById('media-player');
     const playerError = document.getElementById('player-error');
+    const playerLoader = document.getElementById('player-loader');
     const retryBtn = document.getElementById('player-retry-btn');
     const nowTitle = document.getElementById('now-title');
     const nowSubtitle = document.getElementById('now-subtitle');
@@ -28,7 +29,7 @@ export class AppBootstrap {
     const countBadge = document.getElementById('catalog-count');
 
     // 3. Controllers
-    const playerController = new PlayerController(videoElement, storageService, playerError);
+    const playerController = new PlayerController(videoElement, storageService, playerError, playerLoader);
 
     const catalogController = new CatalogController(
       { listContainer, searchInput, countBadge },
@@ -66,6 +67,7 @@ export class AppBootstrap {
         AppBootstrap._updateNowPlaying(initialItem, { nowTitle, nowSubtitle, downloadBtn });
       } else {
         if (nowTitle) nowTitle.textContent = 'Sin contenido disponible';
+        if (nowSubtitle) nowSubtitle.textContent = 'Servidor sin videos';
       }
     } catch (err) {
       console.error('[AppBootstrap] Initialization failure:', err);
@@ -77,7 +79,10 @@ export class AppBootstrap {
    */
   static _updateNowPlaying(mediaItem, { nowTitle, nowSubtitle, downloadBtn }) {
     if (nowTitle) nowTitle.textContent = mediaItem.title;
-    if (nowSubtitle) nowSubtitle.textContent = mediaItem.series;
+    if (nowSubtitle) {
+      const extra = mediaItem.seriesBadge ? ` · ${mediaItem.seriesBadge}` : '';
+      nowSubtitle.textContent = `${mediaItem.series}${extra}`;
+    }
     if (downloadBtn) {
       downloadBtn.href = mediaItem.streamUrl;
       downloadBtn.download = mediaItem.filename;

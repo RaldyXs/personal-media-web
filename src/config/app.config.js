@@ -5,8 +5,8 @@
 export const AppConfig = {
   app: {
     name: 'Personal Media Hub',
-    version: '1.1.3',
-    description: 'Minimalist, high-performance streaming client'
+    version: '1.2.0',
+    description: 'Minimalist, high-performance Netflix-style streaming client'
   },
   api: {
     /**
@@ -14,10 +14,24 @@ export const AppConfig = {
      * When hosted on the same origin (e.g., Nginx), empty string uses relative paths.
      * Can be dynamically overridden via query string `?backend=https://...` or Storage.
      */
-    defaultBaseUrl: 'https://clinical-increasing-period-cradle.trycloudflare.com',
+    defaultBaseUrl: 'https://featured-exceed-taste-take.trycloudflare.com',
     endpoints: {
       videosIndex: '/videos/'
     },
+    series: [
+      {
+        id: 'one-pace',
+        name: 'One Pace',
+        badge: 'Romance Dawn',
+        endpoint: '/videos/one-pace/'
+      },
+      {
+        id: 'darling',
+        name: 'Darling in the Franxx',
+        badge: 'Temporada 1',
+        endpoint: '/videos/darling/'
+      }
+    ],
     timeoutMs: 8000
   },
   player: {
