@@ -64,17 +64,28 @@
       </div>
     </section>
 
-    <!-- Netflix-style Series Shelves Catalog -->
+    <!-- Netflix-style Series Catalog & Selector -->
     <section class="catalog-section" aria-label="Catálogo de series">
+      <!-- Series Selector (Netflix Style Tabs) -->
+      <div class="series-nav-container">
+        <span class="series-nav-label">Series Disponibles:</span>
+        <div class="series-nav" id="series-nav" role="tablist" aria-label="Seleccionar serie">
+          <!-- Dynamically populated by CatalogController -->
+        </div>
+      </div>
+
       <div class="catalog-header">
-        <h2 class="catalog-title">Series y Catálogo</h2>
+        <div class="catalog-header-left">
+          <span class="series-current-indicator"></span>
+          <h2 class="catalog-title" id="catalog-section-title">Episodios</h2>
+        </div>
         <div class="catalog-search-wrapper">
           <input
             type="search"
             id="catalog-search"
             class="catalog-search-input"
-            placeholder="Buscar capítulo o serie..."
-            aria-label="Buscar en la librería"
+            placeholder="Buscar capítulo..."
+            aria-label="Buscar en la serie seleccionada"
           >
         </div>
       </div>

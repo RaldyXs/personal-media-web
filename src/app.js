@@ -25,6 +25,8 @@ export class AppBootstrap {
     const nowSubtitle = document.getElementById('now-subtitle');
     const downloadBtn = document.getElementById('download-btn');
     const listContainer = document.getElementById('catalog-list');
+    const seriesNav = document.getElementById('series-nav');
+    const sectionTitle = document.getElementById('catalog-section-title');
     const searchInput = document.getElementById('catalog-search');
     const countBadge = document.getElementById('catalog-count');
 
@@ -32,7 +34,7 @@ export class AppBootstrap {
     const playerController = new PlayerController(videoElement, storageService, playerError, playerLoader);
 
     const catalogController = new CatalogController(
-      { listContainer, searchInput, countBadge },
+      { listContainer, seriesNav, sectionTitle, searchInput, countBadge },
       (selectedMedia) => {
         // Selection Handler
         playerController.loadMedia(selectedMedia, true);
