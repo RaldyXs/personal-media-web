@@ -13,12 +13,16 @@ export class StreamConnector {
     this.storage = storage;
   }
 
+  clearCustomBackend() {
+    this.storage.remove(AppConfig.storageKeys.customBackendUrl);
+  }
+
   /**
    * Resolves the active backend base URL.
    * Priority:
    * 1. URL Query Parameter (?backend=https://...)
-   * 2. Stored custom backend in localStorage
-   * 3. Default configured origin
+   * 2. Default configured origin (AppConfig.api.defaultBaseUrl)
+   * 3. Stored custom backend in localStorage
    * @returns {string}
    */
   getBaseUrl() {

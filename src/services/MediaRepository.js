@@ -23,16 +23,43 @@ export class MediaRepository extends IMediaRepository {
     if (configuredSeries.length > 0) {
       try {
         const fetchPromises = configuredSeries.map(async (seriesConfig) => {
-          const url = this.connector.buildStreamUrl(seriesConfig.endpoint);
+          let url = this.connector.buildStreamUrl(seriesConfig.endpoint);
           try {
-            const response = await fetch(url, {
+            let response = await fetch(url, {
               headers: { 'Accept': 'application/json' },
               cache: 'no-cache'
             });
+
+            if (!response.ok && AppConfig.api.defaultBaseUrl && !url.startsWith(AppConfig.api.defaultBaseUrl)) {
+              this.connector.clearCustomBackend();
+              const fallbackUrl = `${AppConfig.api.defaultBaseUrl.replace(/\/+$/, '')}${seriesConfig.endpoint}`;
+              response = await fetch(fallbackUrl, {
+                headers: { 'Accept': 'application/json' },
+                cache: 'no-cache'
+              });
+            }
+
             if (!response.ok) return [];
             const rawItems = await response.json();
             return this._parseAutoindex(rawItems, seriesConfig);
           } catch (e) {
+            // Network failure: retry with defaultBaseUrl
+            if (AppConfig.api.defaultBaseUrl && !url.startsWith(AppConfig.api.defaultBaseUrl)) {
+              try {
+                this.connector.clearCustomBackend();
+                const fallbackUrl = `${AppConfig.api.defaultBaseUrl.replace(/\/+$/, '')}${seriesConfig.endpoint}`;
+                const response = await fetch(fallbackUrl, {
+                  headers: { 'Accept': 'application/json' },
+                  cache: 'no-cache'
+                });
+                if (response.ok) {
+                  const rawItems = await response.json();
+                  return this._parseAutoindex(rawItems, seriesConfig);
+                }
+              } catch (retryErr) {
+                console.warn('[MediaRepository] Retry with defaultBaseUrl failed:', retryErr);
+              }
+            }
             console.warn(`[MediaRepository] Failed to fetch series ${seriesConfig.id}:`, e);
             return [];
           }

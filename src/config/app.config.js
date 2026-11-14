@@ -1,11 +1,11 @@
-﻿/**
+/**
  * Centralized Application Configuration
  * Single Source of Truth for runtime parameters and API endpoints.
  */
 export const AppConfig = {
   app: {
     name: 'Anime Stream',
-    version: '1.3.4',
+    version: '1.3.5',
     description: 'Minimalist, high-performance streaming client'
   },
   api: {
@@ -23,19 +23,19 @@ export const AppConfig = {
         id: 'one-pace',
         name: 'One Pace',
         badge: 'Romance Dawn',
-        episodesCountText: '4 CapÃ­tulos',
+        episodesCountText: '4 Capítulos',
         endpoint: '/videos/one-pace/',
-        coverUrl: './assets/covers/one-pace.jpg?v=1.3.4',
-        description: 'La adaptaciÃ³n definitiva y fiel al manga de One Piece.'
+        coverUrl: './assets/covers/one-pace.jpg?v=1.3.5',
+        description: 'La adaptación definitiva y fiel al manga de One Piece.'
       },
       {
         id: 'darling',
         name: 'Darling in the Franxx',
         badge: 'Temporada 1',
-        episodesCountText: '10 CapÃ­tulos',
+        episodesCountText: '10 Capítulos',
         endpoint: '/videos/darling/',
-        coverUrl: './assets/covers/darling.jpg?v=1.3.4',
-        description: 'En un futuro postapocalÃ­ptico, los niÃ±os pilotean los mechas Franxx.'
+        coverUrl: './assets/covers/darling.jpg?v=1.3.5',
+        description: 'En un futuro postapocalíptico, los niños pilotean los mechas Franxx.'
       }
     ],
     timeoutMs: 8000
