@@ -1,9 +1,9 @@
-import { AppConfig } from './config/app.config.js?v=1.3.3';
-import { StorageService } from './services/StorageService.js?v=1.3.3';
-import { StreamConnector } from './services/StreamConnector.js?v=1.3.3';
-import { MediaRepository } from './services/MediaRepository.js?v=1.3.3';
-import { PlayerController } from './controllers/PlayerController.js?v=1.3.3';
-import { CatalogController } from './controllers/CatalogController.js?v=1.3.3';
+import { AppConfig } from './config/app.config.js?v=1.3.4';
+import { StorageService } from './services/StorageService.js?v=1.3.4';
+import { StreamConnector } from './services/StreamConnector.js?v=1.3.4';
+import { MediaRepository } from './services/MediaRepository.js?v=1.3.4';
+import { PlayerController } from './controllers/PlayerController.js?v=1.3.4';
+import { CatalogController } from './controllers/CatalogController.js?v=1.3.4';
 
 /**
  * AppBootstrap
@@ -55,6 +55,12 @@ export class AppBootstrap {
         playerController.loadMedia(selectedMedia, true);
         catalogController.setActive(selectedMedia.id, true);
         AppBootstrap._updateNowPlaying(selectedMedia, { nowTitle, nowSubtitle, downloadBtn });
+      },
+      (view) => {
+        // View change Handler
+        if (view === 'showcase') {
+          playerController.pause();
+        }
       }
     );
 

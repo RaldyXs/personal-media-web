@@ -111,6 +111,15 @@ export class PlayerController {
     }
   }
 
+  /**
+   * Pauses media playback safely.
+   */
+  pause() {
+    if (this.video && !this.video.paused) {
+      this.video.pause();
+    }
+  }
+
   _showLoader() {
     if (this.loaderElement) {
       this.loaderElement.classList.remove('hidden');

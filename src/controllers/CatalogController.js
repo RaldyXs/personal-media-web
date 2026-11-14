@@ -19,10 +19,12 @@ export class CatalogController {
    * @param {HTMLElement} elements.navCatalogBtn
    * @param {HTMLElement} elements.countBadge
    * @param {Function} onSelectCallback
+   * @param {Function} [onViewChangeCallback]
    */
-  constructor(elements, onSelectCallback) {
+  constructor(elements, onSelectCallback, onViewChangeCallback = null) {
     this.el = elements;
     this.onSelect = onSelectCallback;
+    this.onViewChange = onViewChangeCallback;
 
     this.items = [];
     this.seriesList = [];
@@ -73,6 +75,10 @@ export class CatalogController {
     this.renderShowcase();
     this._updateTotalCountBadge();
     window.scrollTo({ top: 0, behavior: 'smooth' });
+
+    if (typeof this.onViewChange === 'function') {
+      this.onViewChange('showcase');
+    }
   }
 
   openSeries(seriesId, autoPlayFirst = false) {
