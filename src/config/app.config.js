@@ -5,7 +5,7 @@
 export const AppConfig = {
   app: {
     name: 'Anime Stream',
-    version: '1.3.1',
+    version: '1.3.2',
     description: 'Minimalist, high-performance streaming client'
   },
   api: {
@@ -25,7 +25,7 @@ export const AppConfig = {
         badge: 'Romance Dawn',
         episodesCountText: '4 Capítulos',
         endpoint: '/videos/one-pace/',
-        coverUrl: './assets/covers/one-pace.jpg',
+        coverUrl: './assets/covers/one-pace.jpg?v=1.3.2',
         description: 'La adaptación definitiva y fiel al manga de One Piece.'
       },
       {
@@ -34,7 +34,7 @@ export const AppConfig = {
         badge: 'Temporada 1',
         episodesCountText: '10 Capítulos',
         endpoint: '/videos/darling/',
-        coverUrl: './assets/covers/darling.jpg',
+        coverUrl: './assets/covers/darling.jpg?v=1.3.2',
         description: 'En un futuro postapocalíptico, los niños pilotean los mechas Franxx.'
       }
     ],
