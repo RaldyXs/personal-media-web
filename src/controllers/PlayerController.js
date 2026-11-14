@@ -10,13 +10,16 @@ export class PlayerController {
    * @param {HTMLVideoElement} videoElement
    * @param {import('../contracts/IStorage.js').IStorageProvider} storage
    * @param {HTMLElement} [errorElement]
+   * @param {HTMLElement} [loaderElement]
    */
-  constructor(videoElement, storage, errorElement = null) {
+  constructor(videoElement, storage, errorElement = null, loaderElement = null) {
     this.video = videoElement;
     this.storage = storage;
     this.errorElement = errorElement;
+    this.loaderElement = loaderElement;
     this.activeItem = null;
     this.stateListeners = [];
+    this._loadSessionId = 0;
 
     this._bindEvents();
   }
@@ -39,7 +42,7 @@ export class PlayerController {
   }
 
   /**
-   * Loads a media item into the player.
+   * Loads a media item into the player with robust WebKit session isolation.
    * @param {import('../contracts/IMediaSource.js').MediaItem} mediaItem
    * @param {boolean} [autoPlay=false]
    */
@@ -47,48 +50,54 @@ export class PlayerController {
     if (!mediaItem) return;
     this.activeItem = mediaItem;
     this._hideError();
+    this._showLoader();
 
-    // Set poster preview if available
+    const currentSession = ++this._loadSessionId;
+
+    // 1. Reset current player pipeline safely
+    this.video.pause();
+
+    // 2. Set poster preview if available
     if (mediaItem.posterUrl) {
       this.video.poster = mediaItem.posterUrl;
     } else {
       this.video.removeAttribute('poster');
     }
 
-    // Set media source
+    // 3. Set source and force fresh load to clear previous buffer and stale readyState
     this.video.src = mediaItem.streamUrl;
+    this.video.load();
 
-    // Restore saved playback position safely once metadata is available
-    const applySavedPosition = () => {
+    // 4. One-time listener for metadata of this specific media item
+    const onLoadedMetadata = () => {
+      if (this._loadSessionId !== currentSession) return;
+
       const savedTime = this.storage.getNumber(
         `${AppConfig.storageKeys.itemProgressPrefix}${mediaItem.id}`,
         0
       );
+
       if (savedTime > AppConfig.player.minPlaybackResumeSeconds) {
         try {
           if (this.video.duration && savedTime < this.video.duration) {
             this.video.currentTime = savedTime;
           }
         } catch (e) {
-          console.warn('[PlayerController] Error al restaurar posición de reproducción:', e);
+          console.warn('[PlayerController] Error al restaurar posición:', e);
         }
+      }
+
+      if (autoPlay) {
+        this.video.play().catch(err => {
+          console.log('[PlayerController] Autoplay diferido a interacción de usuario:', err?.name);
+        });
       }
     };
 
-    if (this.video.readyState >= 1) {
-      applySavedPosition();
-    } else {
-      this.video.addEventListener('loadedmetadata', applySavedPosition, { once: true });
-    }
+    this.video.addEventListener('loadedmetadata', onLoadedMetadata, { once: true });
 
     // Persist as last played
     this.storage.set(AppConfig.storageKeys.lastPlayedItem, mediaItem.id);
-
-    if (autoPlay) {
-      this.video.play().catch(() => {
-        // Autoplay may be restricted by mobile browser policy
-      });
-    }
   }
 
   /**
@@ -98,9 +107,34 @@ export class PlayerController {
     if (this.activeItem) {
       this._hideError();
       const current = this.activeItem;
-      this.video.src = '';
-      this.video.load();
       this.loadMedia(current, true);
+    }
+  }
+
+  _showLoader() {
+    if (this.loaderElement) {
+      this.loaderElement.classList.remove('hidden');
+    }
+  }
+
+  _hideLoader() {
+    if (this.loaderElement) {
+      this.loaderElement.classList.add('hidden');
+    }
+  }
+
+  _showError(message) {
+    this._hideLoader();
+    if (this.errorElement) {
+      const textEl = this.errorElement.querySelector('.player-error-text');
+      if (textEl && message) textEl.textContent = message;
+      this.errorElement.classList.remove('hidden');
+    }
+  }
+
+  _hideError() {
+    if (this.errorElement) {
+      this.errorElement.classList.add('hidden');
     }
   }
 
@@ -110,6 +144,12 @@ export class PlayerController {
   _bindEvents() {
     this.video.addEventListener('play', () => {
       this._hideError();
+      this._hideLoader();
+      this._emitState({ isPlaying: true, item: this.activeItem });
+    });
+
+    this.video.addEventListener('playing', () => {
+      this._hideLoader();
       this._emitState({ isPlaying: true, item: this.activeItem });
     });
 
@@ -117,10 +157,18 @@ export class PlayerController {
       this._emitState({ isPlaying: false, item: this.activeItem });
     });
 
+    this.video.addEventListener('waiting', () => {
+      this._showLoader();
+    });
+
+    this.video.addEventListener('canplay', () => {
+      this._hideLoader();
+    });
+
     this.video.addEventListener('error', () => {
+      this._hideLoader();
       const err = this.video.error;
-      // Error code 1 is MEDIA_ERR_ABORTED (operation intentionally stopped)
-      if (err && err.code === 1) return;
+      if (err && err.code === 1) return; // MEDIA_ERR_ABORTED
 
       console.error('[PlayerController] Media playback error:', err);
       this._showError('No se pudo reproducir el video. Verifica la conexión con el servidor.');
@@ -150,7 +198,7 @@ export class PlayerController {
       this._emitState({ isPlaying: false, ended: true, item: this.activeItem });
     });
 
-    // Keyboard controls for desktop (Space = Play/Pause, Arrows = Seek 10s, F = Fullscreen, M = Mute)
+    // Keyboard controls
     window.addEventListener('keydown', (e) => {
       if (e.target && (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA')) {
         return;
@@ -171,14 +219,14 @@ export class PlayerController {
           break;
         case 'ArrowRight':
           e.preventDefault();
-          this.video.currentTime = Math.min(this.video.duration || Infinity, this.video.currentTime + 10);
+          this.video.currentTime = Math.min(this.video.duration || 0, this.video.currentTime + 10);
           break;
         case 'KeyF':
           e.preventDefault();
           if (!document.fullscreenElement) {
-            this.video.requestFullscreen?.().catch(() => {});
+            this.video.requestFullscreen().catch(() => {});
           } else {
-            document.exitFullscreen?.().catch(() => {});
+            document.exitFullscreen().catch(() => {});
           }
           break;
         case 'KeyM':
@@ -187,25 +235,5 @@ export class PlayerController {
           break;
       }
     });
-  }
-
-  /**
-   * @private
-   */
-  _showError(message) {
-    if (this.errorElement) {
-      const msgEl = this.errorElement.querySelector('.player-error-text');
-      if (msgEl) msgEl.textContent = message;
-      this.errorElement.classList.remove('hidden');
-    }
-  }
-
-  /**
-   * @private
-   */
-  _hideError() {
-    if (this.errorElement) {
-      this.errorElement.classList.add('hidden');
-    }
   }
 }
