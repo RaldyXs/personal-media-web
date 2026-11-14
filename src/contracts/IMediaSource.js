@@ -25,9 +25,10 @@ export class MediaItem {
    * @param {number} params.episodeNumber
    * @param {string} params.streamUrl
    * @param {string} [params.posterUrl]
-   * @param {number} [params.size]
+   * @param {string} [params.seriesId]
+   * @param {string} [params.seriesBadge]
    */
-  constructor({ id, filename, title, series, episodeNumber, streamUrl, posterUrl, size }) {
+  constructor({ id, filename, title, series, episodeNumber, streamUrl, posterUrl, size, seriesId, seriesBadge }) {
     this.id = id;
     this.filename = filename;
     this.title = title;
@@ -36,5 +37,7 @@ export class MediaItem {
     this.streamUrl = streamUrl;
     this.posterUrl = posterUrl || '';
     this.size = size || 0;
+    this.seriesId = seriesId || '';
+    this.seriesBadge = seriesBadge || '';
   }
 }

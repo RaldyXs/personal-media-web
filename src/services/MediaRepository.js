@@ -4,6 +4,8 @@ import { AppConfig } from '../config/app.config.js';
 /**
  * MediaRepository
  * Implements IMediaRepository against Nginx JSON Autoindex / Static File Trees.
+ * Supports multi-series endpoints (e.g., /videos/one-pace/, /videos/darling/)
+ * as well as legacy single endpoint fallback.
  * SRP: Fetching, parsing, and normalizing media objects.
  */
 export class MediaRepository extends IMediaRepository {
@@ -16,8 +18,38 @@ export class MediaRepository extends IMediaRepository {
   }
 
   async getMediaItems() {
-    const url = this.connector.buildStreamUrl(AppConfig.api.endpoints.videosIndex);
+    const configuredSeries = AppConfig.api.series || [];
 
+    if (configuredSeries.length > 0) {
+      try {
+        const fetchPromises = configuredSeries.map(async (seriesConfig) => {
+          const url = this.connector.buildStreamUrl(seriesConfig.endpoint);
+          try {
+            const response = await fetch(url, {
+              headers: { 'Accept': 'application/json' },
+              cache: 'no-cache'
+            });
+            if (!response.ok) return [];
+            const rawItems = await response.json();
+            return this._parseAutoindex(rawItems, seriesConfig);
+          } catch (e) {
+            console.warn(`[MediaRepository] Failed to fetch series ${seriesConfig.id}:`, e);
+            return [];
+          }
+        });
+
+        const results = await Promise.all(fetchPromises);
+        const combined = results.flat();
+        if (combined.length > 0) {
+          return combined;
+        }
+      } catch (err) {
+        console.warn('[MediaRepository] Multi-series fetch failed, trying fallback index', err);
+      }
+    }
+
+    // Fallback to legacy single index /videos/
+    const url = this.connector.buildStreamUrl(AppConfig.api.endpoints.videosIndex);
     try {
       const response = await fetch(url, {
         headers: { 'Accept': 'application/json' },
@@ -34,13 +66,15 @@ export class MediaRepository extends IMediaRepository {
       console.warn('[MediaRepository] Remote index fetch failed, falling back to local default', err);
       return [
         new MediaItem({
-          id: '1.mp4',
+          id: 'darling_1.mp4',
           filename: '1.mp4',
           title: 'Capítulo 1',
           series: 'Darling in the Franxx',
           episodeNumber: 1,
-          streamUrl: this.connector.buildStreamUrl('/videos/1.mp4'),
-          posterUrl: this.connector.buildStreamUrl('/videos/1.jpg')
+          streamUrl: this.connector.buildStreamUrl('/videos/darling/1.mp4'),
+          posterUrl: this.connector.buildStreamUrl('/videos/darling/1.jpg'),
+          seriesId: 'darling',
+          seriesBadge: 'Temporada 1'
         })
       ];
     }
@@ -49,25 +83,39 @@ export class MediaRepository extends IMediaRepository {
   /**
    * @private
    * @param {Array<Object>} items
+   * @param {Object} [seriesConfig]
    * @returns {Array<MediaItem>}
    */
-  _parseAutoindex(items) {
+  _parseAutoindex(items, seriesConfig = null) {
     const validExtensions = new RegExp(`\\.(${AppConfig.player.supportedExtensions.join('|')})$`, 'i');
+    const baseEndpoint = seriesConfig ? seriesConfig.endpoint : '/videos/';
 
     return items
       .filter(item => item.type === 'file' && validExtensions.test(item.name))
       .map(item => {
-        const parsed = this._extractMetadata(item.name);
         const cleanBase = item.name.replace(/\.[^/.]+$/, '');
+        const defaultSeries = seriesConfig ? seriesConfig.name : '';
+        const parsed = this._extractMetadata(item.name, defaultSeries);
+
+        const series = seriesConfig ? seriesConfig.name : parsed.series;
+        const seriesId = seriesConfig ? seriesConfig.id : (parsed.series ? parsed.series.toLowerCase().replace(/\s+/g, '-') : 'default');
+        const seriesBadge = seriesConfig ? seriesConfig.badge : '';
+        const id = seriesConfig ? `${seriesConfig.id}_${item.name}` : item.name;
+
+        const streamPath = `${baseEndpoint.replace(/\/+$/, '')}/${encodeURIComponent(item.name)}`;
+        const posterPath = `${baseEndpoint.replace(/\/+$/, '')}/${encodeURIComponent(cleanBase)}.jpg`;
+
         return new MediaItem({
-          id: item.name,
+          id,
           filename: item.name,
           title: parsed.title,
-          series: parsed.series,
+          series,
           episodeNumber: parsed.episodeNumber,
-          streamUrl: this.connector.buildStreamUrl(`/videos/${encodeURIComponent(item.name)}`),
-          posterUrl: this.connector.buildStreamUrl(`/videos/${encodeURIComponent(cleanBase)}.jpg`),
-          size: item.size || 0
+          streamUrl: this.connector.buildStreamUrl(streamPath),
+          posterUrl: this.connector.buildStreamUrl(posterPath),
+          size: item.size || 0,
+          seriesId,
+          seriesBadge
         });
       })
       .sort((a, b) => {
@@ -79,19 +127,11 @@ export class MediaRepository extends IMediaRepository {
   /**
    * Universal parser that intelligently extracts Series name, Episode Number,
    * Season, and clean title from diverse media naming conventions.
-   *
-   * Supported formats:
-   * - "1.mp4" -> Series: "Darling in the Franxx", Ep: 1, Title: "Capítulo 1"
-   * - "[SubsPlease] Bocchi the Rock! - 01 [1080p].mp4" -> Series: "Bocchi the Rock!", Ep: 1
-   * - "Jujutsu.Kaisen.S02E05.1080p.mp4" -> Series: "Jujutsu Kaisen", Ep: 5, Title: "T2 · Capítulo 5"
-   * - "One_Piece_1050.mp4" -> Series: "One Piece", Ep: 1050
-   * - "Spirited_Away_2001.mp4" -> Series: "Películas", Ep: 1, Title: "Spirited Away (2001)"
    * @private
    */
-  _extractMetadata(filename) {
+  _extractMetadata(filename, defaultSeries = '') {
     const rawBase = filename.replace(/\.[^/.]+$/, '');
 
-    // 1. Strip release groups [Fansub], quality tags [1080p], audio tags (Dual Audio)
     let clean = rawBase
       .replace(/\[[^\]]*\]/g, '')
       .replace(/\s+/g, ' ')
@@ -101,11 +141,8 @@ export class MediaRepository extends IMediaRepository {
     let title = '';
     let episodeNumber = 999;
 
-    // Pattern A: Standard S01E02 / 1x02
     const sxxExxMatch = clean.match(/^(.*?)(?:[._ -]+)?(?:[sS](\d+)[eE](\d+)|(\d+)x(\d+))(?:[._ -]+)?(.*)$/i);
-    // Pattern B: Hyphen separator "Series - EpisodeNumber - Title"
     const hyphenParts = clean.includes(' - ') ? clean.split(' - ') : null;
-    // Pattern C: Trailing or embedded episode number: "Naruto_Shippuden_05" or "Chainsaw Man 03"
     const trailingEpMatch = clean.match(/^(.*?)(?:[._ -]+)(?:ep|episodio|cap|capitulo|episode|e)?\s*(\d{1,4})(?:[._ -]+)?(.*)$/i);
 
     if (sxxExxMatch) {
@@ -143,15 +180,14 @@ export class MediaRepository extends IMediaRepository {
       }
     }
 
-    // Fallbacks for purely numeric or uncategorized names
     if (!series) {
       if (/^\d+$/.test(clean)) {
-        series = 'Darling in the Franxx';
+        series = defaultSeries || 'Darling in the Franxx';
         episodeNumber = parseInt(clean, 10);
         title = `Capítulo ${episodeNumber}`;
       } else {
-        series = clean.replace(/[._-]/g, ' ').trim();
-        title = series;
+        series = defaultSeries || clean.replace(/[._-]/g, ' ').trim();
+        title = clean.replace(/[._-]/g, ' ').trim();
         episodeNumber = 1;
       }
     }
