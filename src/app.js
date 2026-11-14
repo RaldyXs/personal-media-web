@@ -1,9 +1,9 @@
-import { AppConfig } from './config/app.config.js?v=1.2.0';
-import { StorageService } from './services/StorageService.js?v=1.2.0';
-import { StreamConnector } from './services/StreamConnector.js?v=1.2.0';
-import { MediaRepository } from './services/MediaRepository.js?v=1.2.0';
-import { PlayerController } from './controllers/PlayerController.js?v=1.2.0';
-import { CatalogController } from './controllers/CatalogController.js?v=1.2.0';
+import { AppConfig } from './config/app.config.js?v=1.3.0';
+import { StorageService } from './services/StorageService.js?v=1.3.0';
+import { StreamConnector } from './services/StreamConnector.js?v=1.3.0';
+import { MediaRepository } from './services/MediaRepository.js?v=1.3.0';
+import { PlayerController } from './controllers/PlayerController.js?v=1.3.0';
+import { CatalogController } from './controllers/CatalogController.js?v=1.3.0';
 
 /**
  * AppBootstrap
@@ -24,9 +24,15 @@ export class AppBootstrap {
     const nowTitle = document.getElementById('now-title');
     const nowSubtitle = document.getElementById('now-subtitle');
     const downloadBtn = document.getElementById('download-btn');
-    const listContainer = document.getElementById('catalog-list');
-    const seriesNav = document.getElementById('series-nav');
-    const sectionTitle = document.getElementById('catalog-section-title');
+
+    const showcaseView = document.getElementById('series-showcase-view');
+    const detailView = document.getElementById('series-detail-view');
+    const seriesGrid = document.getElementById('series-posters-grid');
+    const episodesGrid = document.getElementById('catalog-list');
+    const currentSeriesName = document.getElementById('current-series-name');
+    const backToCatalogBtn = document.getElementById('back-to-catalog-btn');
+    const detailBackBtn = document.getElementById('detail-back-btn');
+    const navCatalogBtn = document.getElementById('nav-catalog-btn');
     const searchInput = document.getElementById('catalog-search');
     const countBadge = document.getElementById('catalog-count');
 
@@ -34,13 +40,23 @@ export class AppBootstrap {
     const playerController = new PlayerController(videoElement, storageService, playerError, playerLoader);
 
     const catalogController = new CatalogController(
-      { listContainer, seriesNav, sectionTitle, searchInput, countBadge },
+      {
+        showcaseView,
+        detailView,
+        seriesGrid,
+        episodesGrid,
+        currentSeriesName,
+        backToCatalogBtn,
+        detailBackBtn,
+        navCatalogBtn,
+        searchInput,
+        countBadge
+      },
       (selectedMedia) => {
         // Selection Handler
         playerController.loadMedia(selectedMedia, true);
         catalogController.setActive(selectedMedia.id, true);
         AppBootstrap._updateNowPlaying(selectedMedia, { nowTitle, nowSubtitle, downloadBtn });
-        window.scrollTo({ top: 0, behavior: 'smooth' });
       }
     );
 
