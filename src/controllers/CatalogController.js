@@ -2,9 +2,9 @@ import { AppConfig } from '../config/app.config.js';
 
 /**
  * CatalogController
- * Manages the Series Showcase (Vertical Posters 2:3 Grid)
- * and the Episode Picker (Numbered Buttons 1, 2, 3... without bulky boxes) with Cinema Player.
- * SRP: Catalog view state, series switching, and episode number grid rendering.
+ * Manages the Series Showcase (Ultra HD Vertical Posters Grid 2:3)
+ * and the Series Episodes Detail view with Cinema Player & Netflix-style episode rows.
+ * SRP: Catalog view state, series switching, and episode row rendering.
  */
 export class CatalogController {
   /**
@@ -14,6 +14,7 @@ export class CatalogController {
    * @param {HTMLElement} elements.seriesGrid
    * @param {HTMLElement} elements.episodesGrid
    * @param {HTMLElement} elements.currentSeriesName
+   * @param {HTMLElement} elements.currentSeriesBadge
    * @param {HTMLElement} elements.backToCatalogBtn
    * @param {HTMLElement} elements.navCatalogBtn
    * @param {HTMLElement} elements.countBadge
@@ -84,8 +85,9 @@ export class CatalogController {
     if (this.el.countBadge) this.el.countBadge.classList.add('hidden');
 
     const series = this.seriesList.find(s => s.id === seriesId);
-    if (this.el.currentSeriesName && series) {
-      this.el.currentSeriesName.textContent = `${series.name} (${series.badge})`;
+    if (series) {
+      if (this.el.currentSeriesName) this.el.currentSeriesName.textContent = series.name;
+      if (this.el.currentSeriesBadge) this.el.currentSeriesBadge.textContent = `· ${series.badge} (${series.count} eps)`;
     }
 
     this.renderEpisodes();
@@ -106,6 +108,11 @@ export class CatalogController {
     const activeItem = this.items.find(i => i.id === itemId);
     if (activeItem) {
       this.selectedSeriesId = activeItem.seriesId || activeItem.series.toLowerCase().replace(/\s+/g, '-');
+      const series = this.seriesList.find(s => s.id === this.selectedSeriesId);
+      if (series) {
+        if (this.el.currentSeriesName) this.el.currentSeriesName.textContent = series.name;
+        if (this.el.currentSeriesBadge) this.el.currentSeriesBadge.textContent = `· ${series.badge} (${series.count} eps)`;
+      }
     }
 
     if (this.currentView === 'detail') {
@@ -200,22 +207,54 @@ export class CatalogController {
       return;
     }
 
-    // Render clean numbered episode buttons: 1, 2, 3... without bulky box frames
+    // Render clean Netflix-style episode rows with 16:9 thumbnails
     this.el.episodesGrid.innerHTML = scopedItems.map(item => {
       const isActive = item.id === this.activeId;
       const isCurrentlyPlaying = isActive && this.isPlaying;
+      const indexStr = item.episodeNumber < 100
+        ? String(item.episodeNumber).padStart(2, '0')
+        : String(item.episodeNumber);
 
       return `
-        <button
-          type="button"
-          class="ep-btn ${isActive ? 'active' : ''} ${isCurrentlyPlaying ? 'playing' : ''}"
+        <article
+          class="episode-row ${isActive ? 'active' : ''} ${isCurrentlyPlaying ? 'playing' : ''}"
           data-id="${item.id}"
-          aria-label="Capítulo ${item.episodeNumber}"
-          title="${item.series} - Capítulo ${item.episodeNumber}"
+          role="button"
+          tabindex="0"
+          aria-label="${item.series} ${item.title}"
         >
-          <span class="ep-num">${item.episodeNumber}</span>
-          ${isCurrentlyPlaying ? '<span class="ep-dot"></span>' : ''}
-        </button>
+          <div class="ep-thumb-wrap">
+            <img
+              class="ep-thumb-img"
+              src="${item.posterUrl}"
+              alt="${item.title}"
+              loading="lazy"
+              onerror="this.style.opacity='0'"
+            />
+            <div class="ep-play-overlay">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                ${isCurrentlyPlaying
+                  ? '<rect x="6" y="5" width="4" height="14" rx="1"/><rect x="14" y="5" width="4" height="14" rx="1"/>'
+                  : '<path d="M8 5v14l11-7z"/>'}
+              </svg>
+            </div>
+          </div>
+
+          <div class="ep-info">
+            <div class="ep-title-line">
+              <span class="ep-index-num">${indexStr}</span>
+              <span class="ep-title" title="${item.title}">${item.title}</span>
+            </div>
+            <span class="ep-subtext">${item.seriesBadge || item.series}</span>
+          </div>
+
+          ${isActive ? `
+            <span class="ep-status-pill">
+              <span class="ep-dot"></span>
+              <span>${isCurrentlyPlaying ? 'EN VIVO' : 'ACTIVO'}</span>
+            </span>
+          ` : ''}
+        </article>
       `;
     }).join('');
   }
@@ -251,15 +290,28 @@ export class CatalogController {
       });
     }
 
-    // 2. Click on Numbered Episode Button (1, 2, 3...)
+    // 2. Click on Episode Row
     if (this.el.episodesGrid) {
       this.el.episodesGrid.addEventListener('click', (e) => {
-        const btn = e.target.closest('.ep-btn');
-        if (!btn) return;
-        const id = btn.getAttribute('data-id');
+        const row = e.target.closest('.episode-row');
+        if (!row) return;
+        const id = row.getAttribute('data-id');
         const selected = this.items.find(i => i.id === id);
         if (selected && this.onSelect) {
           this.onSelect(selected);
+        }
+      });
+
+      this.el.episodesGrid.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          const row = e.target.closest('.episode-row');
+          if (!row) return;
+          e.preventDefault();
+          const id = row.getAttribute('data-id');
+          const selected = this.items.find(i => i.id === id);
+          if (selected && this.onSelect) {
+            this.onSelect(selected);
+          }
         }
       });
     }

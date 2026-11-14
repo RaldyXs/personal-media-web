@@ -10,13 +10,13 @@
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23e50914'><polygon points='5 3 19 12 5 21 5 3'/></svg>">
 
   <!-- Modular CSS Architecture -->
-  <link rel="stylesheet" href="./styles/variables.css?v=1.3.2">
-  <link rel="stylesheet" href="./styles/layout.css?v=1.3.2">
-  <link rel="stylesheet" href="./styles/components.css?v=1.3.2">
+  <link rel="stylesheet" href="./styles/variables.css?v=1.3.3">
+  <link rel="stylesheet" href="./styles/layout.css?v=1.3.3">
+  <link rel="stylesheet" href="./styles/components.css?v=1.3.3">
 </head>
 <body>
 
-  <!-- Minimalist Header -->
+  <!-- Clean Minimalist Header -->
   <header>
     <div class="header-left">
       <button id="nav-catalog-btn" class="header-brand-btn" title="Ir al catálogo principal de series">
@@ -26,33 +26,33 @@
       </button>
     </div>
     <div class="header-right">
-      <button id="back-to-catalog-btn" class="header-back-btn hidden" title="Volver al catálogo de series">
+      <button id="back-to-catalog-btn" class="header-back-btn hidden" title="Volver a la selección de series">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
           <polyline points="15 18 9 12 15 6"></polyline>
         </svg>
-        <span>Volver a Series</span>
+        <span>Catálogo</span>
       </button>
       <div class="header-meta" id="catalog-count">Cargando...</div>
     </div>
   </header>
 
   <main>
-    <!-- VIEW 1: NETFLIX SERIES SHOWCASE (Vertical 2:3 Posters Grid) -->
+    <!-- VIEW 1: SERIES SHOWCASE (Ultra HD Vertical Posters Grid 2:3) -->
     <section id="series-showcase-view" class="series-showcase-view" aria-label="Catálogo de series">
       <div class="showcase-header">
         <div class="showcase-title-wrap">
           <span class="netflix-red-bar"></span>
           <h2 class="showcase-title">Catálogo de Series</h2>
         </div>
-        <p class="showcase-subtitle">Selecciona una serie para ver sus capítulos disponibles.</p>
+        <p class="showcase-subtitle">Elige una serie para ver sus episodios disponibles.</p>
       </div>
 
       <div class="series-posters-grid" id="series-posters-grid">
-        <div class="empty-state">Cargando catálogo de series...</div>
+        <div class="empty-state">Cargando catálogo...</div>
       </div>
     </section>
 
-    <!-- VIEW 2: SERIES DETAIL & PLAYER (Video + Numbered Episodes) -->
+    <!-- VIEW 2: SERIES PLAYER & NETFLIX EPISODE LIST -->
     <section id="series-detail-view" class="series-detail-view hidden" aria-label="Reproductor y capítulos">
       <!-- Cinema Video Player -->
       <section class="player-container" aria-label="Reproductor principal">
@@ -90,25 +90,25 @@
         </div>
       </section>
 
-      <!-- Episode Picker Section -->
-      <section class="episodes-section" aria-label="Selector de capítulos">
+      <!-- Episode List (Netflix Style Rows with Thumbnails) -->
+      <section class="episodes-section" aria-label="Lista de episodios">
         <div class="episodes-header">
           <div class="episodes-header-left">
             <span class="episodes-bullet"></span>
-            <h3 class="current-series-name" id="current-series-name">Capítulos disponibles</h3>
+            <h3 class="current-series-name" id="current-series-name">Episodios</h3>
+            <span class="current-series-badge" id="current-series-badge"></span>
           </div>
-          <span class="episodes-hint">Toca un número para ver</span>
         </div>
 
-        <!-- Numbered Episode Selector (1, 2, 3... sin recuadro) -->
-        <div class="episodes-number-grid" id="catalog-list">
-          <div class="empty-state">Cargando capítulos...</div>
+        <!-- Clean Netflix Episode Rows List -->
+        <div class="episodes-list" id="catalog-list">
+          <div class="empty-state">Cargando episodios...</div>
         </div>
       </section>
     </section>
   </main>
 
   <!-- ES6 Module Entrypoint -->
-  <script type="module" src="./src/app.js?v=1.3.2"></script>
+  <script type="module" src="./src/app.js?v=1.3.3"></script>
 </body>
 </html>

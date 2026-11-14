@@ -1,9 +1,9 @@
-import { AppConfig } from './config/app.config.js?v=1.3.2';
-import { StorageService } from './services/StorageService.js?v=1.3.2';
-import { StreamConnector } from './services/StreamConnector.js?v=1.3.2';
-import { MediaRepository } from './services/MediaRepository.js?v=1.3.2';
-import { PlayerController } from './controllers/PlayerController.js?v=1.3.2';
-import { CatalogController } from './controllers/CatalogController.js?v=1.3.2';
+import { AppConfig } from './config/app.config.js?v=1.3.3';
+import { StorageService } from './services/StorageService.js?v=1.3.3';
+import { StreamConnector } from './services/StreamConnector.js?v=1.3.3';
+import { MediaRepository } from './services/MediaRepository.js?v=1.3.3';
+import { PlayerController } from './controllers/PlayerController.js?v=1.3.3';
+import { CatalogController } from './controllers/CatalogController.js?v=1.3.3';
 
 /**
  * AppBootstrap
@@ -30,6 +30,7 @@ export class AppBootstrap {
     const seriesGrid = document.getElementById('series-posters-grid');
     const episodesGrid = document.getElementById('catalog-list');
     const currentSeriesName = document.getElementById('current-series-name');
+    const currentSeriesBadge = document.getElementById('current-series-badge');
     const backToCatalogBtn = document.getElementById('back-to-catalog-btn');
     const navCatalogBtn = document.getElementById('nav-catalog-btn');
     const countBadge = document.getElementById('catalog-count');
@@ -44,6 +45,7 @@ export class AppBootstrap {
         seriesGrid,
         episodesGrid,
         currentSeriesName,
+        currentSeriesBadge,
         backToCatalogBtn,
         navCatalogBtn,
         countBadge
