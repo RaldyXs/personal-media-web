@@ -1,5 +1,5 @@
 /* ==========================================================================
-   NETFLIX BRAND & HEADER
+   BRAND & HEADER
    ========================================================================== */
 .header-left {
   display: flex;
@@ -19,10 +19,10 @@
   font-family: inherit;
 }
 
-.netflix-brand-red {
+.brand-accent {
   font-size: 1.25rem;
   font-weight: 850;
-  letter-spacing: 0.03em;
+  letter-spacing: 0.04em;
   color: var(--accent-netflix);
   text-transform: uppercase;
 }
@@ -43,15 +43,15 @@
 .header-right {
   display: flex;
   align-items: center;
-  gap: 14px;
+  gap: 12px;
 }
 
-.action-btn-back {
+.header-back-btn {
   background: var(--bg-tertiary);
   border: 1px solid var(--border-subtle);
   color: var(--text-primary);
-  font-size: 0.78rem;
-  font-weight: 500;
+  font-size: 0.76rem;
+  font-weight: 600;
   padding: 6px 12px;
   border-radius: var(--radius-sm);
   display: inline-flex;
@@ -59,9 +59,10 @@
   gap: 6px;
   cursor: pointer;
   transition: all var(--transition-fast);
+  white-space: nowrap;
 }
 
-.action-btn-back:hover {
+.header-back-btn:hover {
   background: var(--bg-hover);
   border-color: var(--border-hover);
 }
@@ -70,10 +71,11 @@
   font-size: 0.8rem;
   color: var(--text-muted);
   font-variant-numeric: tabular-nums;
+  white-space: nowrap;
 }
 
 /* ==========================================================================
-   VIEW 1: NETFLIX SERIES SHOWCASE (Vertical 2:3 Posters Grid)
+   VIEW 1: SERIES SHOWCASE (Vertical 2:3 Posters Grid)
    ========================================================================== */
 .series-showcase-view {
   padding: 24px 20px;
@@ -448,262 +450,120 @@ video {
   background: var(--bg-tertiary);
 }
 
-/* EPISODES SECTION */
+/* EPISODES PICKER SECTION (1, 2, 3... SIN RECUADRO) */
 .episodes-section {
-  padding: 24px 20px;
+  padding: 20px 20px 36px 20px;
 }
 
 .episodes-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 20px;
+  margin-bottom: 16px;
   gap: 12px;
 }
 
 .episodes-header-left {
   display: flex;
   align-items: center;
-  gap: 10px;
-  min-width: 0;
+  gap: 8px;
 }
 
-.back-link-btn {
-  background: transparent;
-  border: none;
-  color: var(--text-muted);
-  font-size: 0.82rem;
-  font-weight: 500;
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  cursor: pointer;
-  padding: 4px 0;
-  transition: color var(--transition-fast);
-  white-space: nowrap;
-}
-
-.back-link-btn:hover {
-  color: var(--text-primary);
-}
-
-.header-divider-dot {
-  color: var(--text-dim);
+.episodes-bullet {
+  width: 4px;
+  height: 16px;
+  background: var(--accent-netflix);
+  border-radius: 2px;
 }
 
 .current-series-name {
-  font-size: 0.95rem;
+  font-size: 1rem;
   font-weight: 600;
   color: var(--text-primary);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  letter-spacing: -0.01em;
 }
 
-.episodes-search-wrap {
-  position: relative;
-  max-width: 200px;
-  width: 100%;
-}
-
-.catalog-search-input {
-  width: 100%;
-  background: var(--bg-secondary);
-  border: 1px solid var(--border-subtle);
-  border-radius: var(--radius-sm);
-  padding: 6px 12px;
-  font-size: 0.8rem;
-  color: var(--text-primary);
-  outline: none;
-  transition: border-color var(--transition-fast);
-}
-
-.catalog-search-input:focus {
-  border-color: var(--border-active);
-}
-
-.catalog-search-input::placeholder {
+.episodes-hint {
+  font-size: 0.74rem;
   color: var(--text-dim);
 }
 
-/* EPISODES GRID (16:9 Thumbnail Cards) */
-.episodes-grid {
+/* NUMBERED BUTTONS GRID */
+.episodes-number-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
-  gap: 16px;
+  grid-template-columns: repeat(auto-fill, minmax(54px, 1fr));
+  gap: 10px;
 }
 
 @media (max-width: 480px) {
-  .episodes-grid {
-    grid-template-columns: repeat(auto-fill, minmax(145px, 1fr));
-    gap: 10px;
+  .episodes-number-grid {
+    grid-template-columns: repeat(5, 1fr);
+    gap: 8px;
   }
 }
 
-.episode-card {
+.ep-btn {
+  aspect-ratio: 1 / 1;
+  min-height: 48px;
   display: flex;
   flex-direction: column;
-  border-radius: var(--radius-md);
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  border-radius: var(--radius-sm);
   background: var(--bg-secondary);
   border: 1px solid var(--border-subtle);
-  overflow: hidden;
+  color: var(--text-primary);
+  font-family: inherit;
   cursor: pointer;
-  transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.2s ease, box-shadow 0.2s ease;
   user-select: none;
-}
-
-.episode-card:hover {
-  transform: translateY(-4px);
-  border-color: var(--border-active);
-  background: var(--bg-tertiary);
-}
-
-.episode-card.active {
-  border-color: rgba(255, 255, 255, 0.85);
-  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.6), 0 0 12px rgba(255, 255, 255, 0.12);
-}
-
-.episode-card.playing {
-  border-color: var(--accent-netflix);
-  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.6), 0 0 16px rgba(229, 9, 20, 0.35);
-}
-
-.episode-poster-wrap {
+  transition: all var(--transition-fast);
   position: relative;
-  width: 100%;
-  aspect-ratio: 16 / 9;
-  background: #111115;
-  overflow: hidden;
 }
 
-.episode-poster {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  display: block;
-  transition: transform 0.3s ease;
+.ep-num {
+  font-size: 1.15rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
 }
 
-.episode-card:hover .episode-poster {
-  transform: scale(1.05);
+.ep-btn:hover {
+  background: var(--bg-tertiary);
+  border-color: var(--border-hover);
+  transform: translateY(-2px);
 }
 
-.episode-fallback-gradient {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(135deg, #18181f 0%, #0d0d10 100%);
-  z-index: 1;
-  pointer-events: none;
+.ep-btn:active {
+  transform: translateY(0);
 }
 
-.episode-overlay {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0, 0, 0, 0.35);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  opacity: 0;
-  transition: opacity 0.2s ease;
-  z-index: 2;
-}
-
-.episode-card:hover .episode-overlay,
-.episode-card.active .episode-overlay {
-  opacity: 1;
-}
-
-.play-action-icon {
-  width: 38px;
-  height: 38px;
-  border-radius: 50%;
-  background: rgba(0, 0, 0, 0.7);
-  border: 1px solid rgba(255, 255, 255, 0.4);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: #ffffff;
-  transform: scale(0.9);
-  transition: transform 0.2s ease;
-}
-
-.episode-card:hover .play-action-icon {
-  transform: scale(1.05);
-}
-
-.episode-card.playing .play-action-icon {
+.ep-btn.active {
   background: var(--accent-netflix);
   border-color: var(--accent-netflix);
-}
-
-.now-badge {
-  position: absolute;
-  top: 8px;
-  left: 8px;
-  font-size: 0.65rem;
-  font-weight: 700;
-  letter-spacing: 0.04em;
   color: #ffffff;
-  background: rgba(0, 0, 0, 0.75);
-  padding: 3px 8px;
-  border-radius: 4px;
-  border: 1px solid rgba(255, 255, 255, 0.25);
-  display: flex;
-  align-items: center;
-  gap: 5px;
-  z-index: 3;
+  box-shadow: 0 4px 14px rgba(229, 9, 20, 0.45);
 }
 
-.now-badge-dot {
-  width: 6px;
-  height: 6px;
+.ep-btn.playing {
+  background: var(--accent-netflix);
+  border-color: var(--accent-netflix);
+  color: #ffffff;
+}
+
+.ep-dot {
+  width: 5px;
+  height: 5px;
   border-radius: 50%;
-  background: #22c55e;
-  box-shadow: 0 0 6px #22c55e;
+  background: #ffffff;
+  animation: pulse-dot 1.2s infinite;
 }
 
-.episode-tag {
-  position: absolute;
-  bottom: 8px;
-  left: 8px;
-  font-size: 0.7rem;
-  font-weight: 600;
-  color: rgba(255, 255, 255, 0.85);
-  background: rgba(0, 0, 0, 0.7);
-  padding: 2px 6px;
-  border-radius: 3px;
-  z-index: 3;
-}
-
-.episode-card-body {
-  padding: 10px 12px;
-  display: flex;
-  flex-direction: column;
-  gap: 3px;
-  background: var(--bg-secondary);
-}
-
-.episode-title {
-  font-size: 0.85rem;
-  font-weight: 500;
-  color: var(--text-primary);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.episode-series-name {
-  font-size: 0.72rem;
-  color: var(--text-dim);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+@keyframes pulse-dot {
+  0% { transform: scale(0.8); opacity: 0.7; }
+  50% { transform: scale(1.3); opacity: 1; }
+  100% { transform: scale(0.8); opacity: 0.7; }
 }
 
 .empty-state {

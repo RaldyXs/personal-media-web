@@ -4,9 +4,9 @@
  */
 export const AppConfig = {
   app: {
-    name: 'Personal Media Hub',
-    version: '1.3.0',
-    description: 'Minimalist, high-performance Netflix-style streaming client'
+    name: 'Anime Stream',
+    version: '1.3.1',
+    description: 'Minimalist, high-performance streaming client'
   },
   api: {
     /**

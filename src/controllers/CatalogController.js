@@ -2,9 +2,9 @@ import { AppConfig } from '../config/app.config.js';
 
 /**
  * CatalogController
- * Manages the Netflix Series Showcase (Vertical Posters 2:3 Grid)
- * and the Series Episodes Detail & Video Player view.
- * SRP: Catalog view state, series switching, and episode grid rendering.
+ * Manages the Series Showcase (Vertical Posters 2:3 Grid)
+ * and the Episode Picker (Numbered Buttons 1, 2, 3... without bulky boxes) with Cinema Player.
+ * SRP: Catalog view state, series switching, and episode number grid rendering.
  */
 export class CatalogController {
   /**
@@ -15,9 +15,7 @@ export class CatalogController {
    * @param {HTMLElement} elements.episodesGrid
    * @param {HTMLElement} elements.currentSeriesName
    * @param {HTMLElement} elements.backToCatalogBtn
-   * @param {HTMLElement} elements.detailBackBtn
    * @param {HTMLElement} elements.navCatalogBtn
-   * @param {HTMLInputElement} elements.searchInput
    * @param {HTMLElement} elements.countBadge
    * @param {Function} onSelectCallback
    */
@@ -55,7 +53,6 @@ export class CatalogController {
       };
     });
 
-    // If an item was already playing or saved, we can initialize state
     if (this.currentView === 'detail' && this.selectedSeriesId) {
       this.renderEpisodes();
     } else {
@@ -70,6 +67,7 @@ export class CatalogController {
     if (this.el.showcaseView) this.el.showcaseView.classList.remove('hidden');
     if (this.el.detailView) this.el.detailView.classList.add('hidden');
     if (this.el.backToCatalogBtn) this.el.backToCatalogBtn.classList.add('hidden');
+    if (this.el.countBadge) this.el.countBadge.classList.remove('hidden');
 
     this.renderShowcase();
     this._updateTotalCountBadge();
@@ -83,6 +81,7 @@ export class CatalogController {
     if (this.el.showcaseView) this.el.showcaseView.classList.add('hidden');
     if (this.el.detailView) this.el.detailView.classList.remove('hidden');
     if (this.el.backToCatalogBtn) this.el.backToCatalogBtn.classList.remove('hidden');
+    if (this.el.countBadge) this.el.countBadge.classList.add('hidden');
 
     const series = this.seriesList.find(s => s.id === seriesId);
     if (this.el.currentSeriesName && series) {
@@ -92,7 +91,6 @@ export class CatalogController {
     this.renderEpisodes();
     window.scrollTo({ top: 0, behavior: 'smooth' });
 
-    // Optional auto-select first episode of series if none active in this series
     if (autoPlayFirst) {
       const seriesEpisodes = this.items.filter(i => (i.seriesId || i.series.toLowerCase().replace(/\s+/g, '-')) === seriesId);
       if (seriesEpisodes.length > 0 && (!this.activeId || !seriesEpisodes.some(e => e.id === this.activeId))) {
@@ -191,84 +189,39 @@ export class CatalogController {
   renderEpisodes() {
     if (!this.el.episodesGrid) return;
 
-    const query = (this.el.searchInput?.value || '').trim().toLowerCase();
-
     // Filter by selected series
-    let scopedItems = this.items.filter(item => {
+    const scopedItems = this.items.filter(item => {
       const sId = item.seriesId || item.series.toLowerCase().replace(/\s+/g, '-');
       return sId === this.selectedSeriesId;
     });
 
-    // Filter by search query
-    const filtered = query
-      ? scopedItems.filter(item => item.title.toLowerCase().includes(query))
-      : scopedItems;
-
-    if (this.el.countBadge) {
-      this.el.countBadge.textContent = `${filtered.length} ${filtered.length === 1 ? 'capítulo' : 'capítulos'}`;
-    }
-
-    if (!filtered.length) {
+    if (!scopedItems.length) {
       this.el.episodesGrid.innerHTML = '<div class="empty-state">No se encontraron capítulos en esta serie.</div>';
       return;
     }
 
-    this.el.episodesGrid.innerHTML = filtered.map(item => {
+    // Render clean numbered episode buttons: 1, 2, 3... without bulky box frames
+    this.el.episodesGrid.innerHTML = scopedItems.map(item => {
       const isActive = item.id === this.activeId;
       const isCurrentlyPlaying = isActive && this.isPlaying;
-      const indexStr = item.episodeNumber < 100
-        ? String(item.episodeNumber).padStart(2, '0')
-        : String(item.episodeNumber);
 
       return `
-        <article
-          class="episode-card ${isActive ? 'active' : ''} ${isCurrentlyPlaying ? 'playing' : ''}"
+        <button
+          type="button"
+          class="ep-btn ${isActive ? 'active' : ''} ${isCurrentlyPlaying ? 'playing' : ''}"
           data-id="${item.id}"
-          role="button"
-          tabindex="0"
-          aria-label="${item.series} ${item.title}"
+          aria-label="Capítulo ${item.episodeNumber}"
+          title="${item.series} - Capítulo ${item.episodeNumber}"
         >
-          <div class="episode-poster-wrap">
-            <img
-              class="episode-poster"
-              src="${item.posterUrl}"
-              alt="${item.title}"
-              loading="lazy"
-              onerror="this.style.opacity='0'"
-            />
-            <div class="episode-fallback-gradient"></div>
-
-            <div class="episode-overlay">
-              <div class="play-action-icon">
-                <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor">
-                  ${isCurrentlyPlaying
-                    ? '<rect x="6" y="5" width="4" height="14" rx="1"/><rect x="14" y="5" width="4" height="14" rx="1"/>'
-                    : '<path d="M8 5v14l11-7z"/>'}
-                </svg>
-              </div>
-            </div>
-
-            ${isActive ? `
-              <span class="now-badge">
-                <span class="now-badge-dot"></span>
-                ${isCurrentlyPlaying ? 'REPRODUCIENDO' : 'ACTIVO'}
-              </span>
-            ` : ''}
-
-            <span class="episode-tag">EP ${indexStr}</span>
-          </div>
-
-          <div class="episode-card-body">
-            <span class="episode-title" title="${item.title}">${item.title}</span>
-            <span class="episode-series-name">${item.seriesBadge || item.series}</span>
-          </div>
-        </article>
+          <span class="ep-num">${item.episodeNumber}</span>
+          ${isCurrentlyPlaying ? '<span class="ep-dot"></span>' : ''}
+        </button>
       `;
     }).join('');
   }
 
   _updateTotalCountBadge() {
-    if (this.el.countBadge) {
+    if (this.el.countBadge && this.currentView === 'showcase') {
       this.el.countBadge.textContent = `${this.seriesList.length} Series · ${this.items.length} Caps`;
     }
   }
@@ -298,28 +251,15 @@ export class CatalogController {
       });
     }
 
-    // 2. Click on Episode Card in Details
+    // 2. Click on Numbered Episode Button (1, 2, 3...)
     if (this.el.episodesGrid) {
       this.el.episodesGrid.addEventListener('click', (e) => {
-        const card = e.target.closest('.episode-card');
-        if (!card) return;
-        const id = card.getAttribute('data-id');
+        const btn = e.target.closest('.ep-btn');
+        if (!btn) return;
+        const id = btn.getAttribute('data-id');
         const selected = this.items.find(i => i.id === id);
         if (selected && this.onSelect) {
           this.onSelect(selected);
-        }
-      });
-
-      this.el.episodesGrid.addEventListener('keydown', (e) => {
-        if (e.key === 'Enter' || e.key === ' ') {
-          const card = e.target.closest('.episode-card');
-          if (!card) return;
-          e.preventDefault();
-          const id = card.getAttribute('data-id');
-          const selected = this.items.find(i => i.id === id);
-          if (selected && this.onSelect) {
-            this.onSelect(selected);
-          }
         }
       });
     }
@@ -329,17 +269,8 @@ export class CatalogController {
       this.el.backToCatalogBtn.addEventListener('click', () => this.showShowcase());
     }
 
-    if (this.el.detailBackBtn) {
-      this.el.detailBackBtn.addEventListener('click', () => this.showShowcase());
-    }
-
     if (this.el.navCatalogBtn) {
       this.el.navCatalogBtn.addEventListener('click', () => this.showShowcase());
-    }
-
-    // 4. Search Filter
-    if (this.el.searchInput) {
-      this.el.searchInput.addEventListener('input', () => this.renderEpisodes());
     }
   }
 }
