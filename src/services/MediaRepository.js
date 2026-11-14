@@ -104,6 +104,7 @@ export class MediaRepository extends IMediaRepository {
 
         const streamPath = `${baseEndpoint.replace(/\/+$/, '')}/${encodeURIComponent(item.name)}`;
         const posterPath = `${baseEndpoint.replace(/\/+$/, '')}/${encodeURIComponent(cleanBase)}.jpg`;
+        const coverUrl = seriesConfig?.coverUrl || '';
 
         return new MediaItem({
           id,
@@ -115,7 +116,8 @@ export class MediaRepository extends IMediaRepository {
           posterUrl: this.connector.buildStreamUrl(posterPath),
           size: item.size || 0,
           seriesId,
-          seriesBadge
+          seriesBadge,
+          coverUrl
         });
       })
       .sort((a, b) => {
