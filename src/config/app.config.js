@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Centralized Application Configuration
  * Single Source of Truth for runtime parameters and API endpoints.
  */
@@ -14,7 +14,7 @@ export const AppConfig = {
      * When hosted on the same origin (e.g., Nginx), empty string uses relative paths.
      * Can be dynamically overridden via query string `?backend=https://...` or Storage.
      */
-    defaultBaseUrl: 'https://featured-exceed-taste-take.trycloudflare.com',
+    defaultBaseUrl: 'https://off-create-charity-extent.trycloudflare.com',
     endpoints: {
       videosIndex: '/videos/'
     },
@@ -23,19 +23,19 @@ export const AppConfig = {
         id: 'one-pace',
         name: 'One Pace',
         badge: 'Romance Dawn',
-        episodesCountText: '4 Capítulos',
+        episodesCountText: '4 CapÃ­tulos',
         endpoint: '/videos/one-pace/',
         coverUrl: './assets/covers/one-pace.jpg?v=1.3.4',
-        description: 'La adaptación definitiva y fiel al manga de One Piece.'
+        description: 'La adaptaciÃ³n definitiva y fiel al manga de One Piece.'
       },
       {
         id: 'darling',
         name: 'Darling in the Franxx',
         badge: 'Temporada 1',
-        episodesCountText: '10 Capítulos',
+        episodesCountText: '10 CapÃ­tulos',
         endpoint: '/videos/darling/',
         coverUrl: './assets/covers/darling.jpg?v=1.3.4',
-        description: 'En un futuro postapocalíptico, los niños pilotean los mechas Franxx.'
+        description: 'En un futuro postapocalÃ­ptico, los niÃ±os pilotean los mechas Franxx.'
       }
     ],
     timeoutMs: 8000
