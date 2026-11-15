@@ -133,10 +133,14 @@ export class MediaRepository extends IMediaRepository {
         const posterPath = `${baseEndpoint.replace(/\/+$/, '')}/${encodeURIComponent(cleanBase)}.jpg`;
         const coverUrl = seriesConfig?.coverUrl || '';
 
+        const title = (seriesConfig?.badge === 'Película' && parsed.episodeNumber === 1)
+          ? `${series} (Película Completa)`
+          : parsed.title;
+
         return new MediaItem({
           id,
           filename: item.name,
-          title: parsed.title,
+          title,
           series,
           episodeNumber: parsed.episodeNumber,
           streamUrl: this.connector.buildStreamUrl(streamPath),
