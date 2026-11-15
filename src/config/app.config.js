@@ -5,7 +5,7 @@
 export const AppConfig = {
   app: {
     name: 'Anime Stream',
-    version: '1.3.5',
+    version: '1.3.6',
     description: 'Minimalist, high-performance streaming client'
   },
   api: {
@@ -25,7 +25,7 @@ export const AppConfig = {
         badge: 'Romance Dawn',
         episodesCountText: '4 Capítulos',
         endpoint: '/videos/one-pace/',
-        coverUrl: './assets/covers/one-pace.jpg?v=1.3.5',
+        coverUrl: './assets/covers/one-pace.jpg?v=1.3.6',
         description: 'La adaptación definitiva y fiel al manga de One Piece.'
       },
       {
@@ -34,8 +34,17 @@ export const AppConfig = {
         badge: 'Temporada 1',
         episodesCountText: '10 Capítulos',
         endpoint: '/videos/darling/',
-        coverUrl: './assets/covers/darling.jpg?v=1.3.5',
+        coverUrl: './assets/covers/darling.jpg?v=1.3.6',
         description: 'En un futuro postapocalíptico, los niños pilotean los mechas Franxx.'
+      },
+      {
+        id: '009-re-cyborg',
+        name: '009 Re:Cyborg',
+        badge: 'Película',
+        episodesCountText: '1 Película',
+        endpoint: '/videos/009-re-cyborg/',
+        coverUrl: './assets/covers/009-re-cyborg.jpg?v=1.3.6',
+        description: 'En un mundo amenazado por atentados globales, los nueve guerreros cyborg son reactivados para salvar a la humanidad.'
       }
     ],
     timeoutMs: 8000
