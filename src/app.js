@@ -1,9 +1,9 @@
-import { AppConfig } from './config/app.config.js?v=1795383039';
-import { StorageService } from './services/StorageService.js?v=1795383039';
-import { StreamConnector } from './services/StreamConnector.js?v=1795383039';
-import { MediaRepository } from './services/MediaRepository.js?v=1795383039';
-import { PlayerController } from './controllers/PlayerController.js?v=1795383039';
-import { CatalogController } from './controllers/CatalogController.js?v=1795383039';
+import { AppConfig } from './config/app.config.js?v=1795383278';
+import { StorageService } from './services/StorageService.js?v=1795383278';
+import { StreamConnector } from './services/StreamConnector.js?v=1795383278';
+import { MediaRepository } from './services/MediaRepository.js?v=1795383278';
+import { PlayerController } from './controllers/PlayerController.js?v=1795383278';
+import { CatalogController } from './controllers/CatalogController.js?v=1795383278';
 
 /**
  * AppBootstrap
@@ -102,7 +102,7 @@ export class AppBootstrap {
   static _updateNowPlaying(mediaItem, { nowTitle, nowSubtitle, downloadBtn }) {
     if (nowTitle) nowTitle.textContent = mediaItem.title;
     if (nowSubtitle) {
-      const extra = mediaItem.seriesBadge ? ` Â· ${mediaItem.seriesBadge}` : '';
+      const extra = mediaItem.seriesBadge ? ` Ã‚Â· ${mediaItem.seriesBadge}` : '';
       nowSubtitle.textContent = `${mediaItem.series}${extra}`;
     }
     if (downloadBtn) {

@@ -20,23 +20,23 @@ export class StreamConnector {
   /**
    * Resolves the active backend base URL.
    * Priority:
-   * 1. URL Query Parameter (?backend=https://...)
-   * 2. Default configured origin (AppConfig.api.defaultBaseUrl)
+   * 1. Default configured origin (AppConfig.api.defaultBaseUrl - Single Source of Truth)
+   * 2. URL Query Parameter (?forceBackend=... or ?backend=...)
    * 3. Stored custom backend in localStorage
    * @returns {string}
    */
   getBaseUrl() {
+    if (AppConfig.api.defaultBaseUrl) {
+      return AppConfig.api.defaultBaseUrl.replace(/\/+$/, '');
+    }
+
     const params = new URLSearchParams(window.location.search);
-    const queryBackend = params.get('backend');
+    const queryBackend = params.get('forceBackend') || params.get('backend');
 
     if (queryBackend) {
       const sanitized = queryBackend.replace(/\/+$/, '');
       this.storage.set(AppConfig.storageKeys.customBackendUrl, sanitized);
       return sanitized;
-    }
-
-    if (AppConfig.api.defaultBaseUrl) {
-      return AppConfig.api.defaultBaseUrl.replace(/\/+$/, '');
     }
 
     const storedBackend = this.storage.get(AppConfig.storageKeys.customBackendUrl);
