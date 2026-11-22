@@ -14,7 +14,7 @@ export const AppConfig = {
      * When hosted on the same origin (e.g., Nginx), empty string uses relative paths.
      * Can be dynamically overridden via query string `?backend=https://...` or Storage.
      */
-    defaultBaseUrl: 'https://off-create-charity-extent.trycloudflare.com',
+    defaultBaseUrl: 'https://planets-gym-postcards-lighter.trycloudflare.com',
     endpoints: {
       videosIndex: '/videos/'
     },
@@ -23,25 +23,25 @@ export const AppConfig = {
         id: 'one-pace',
         name: 'One Pace',
         badge: 'Romance Dawn',
-        episodesCountText: '4 Capítulos',
+        episodesCountText: '4 CapÃ­tulos',
         endpoint: '/videos/one-pace/',
         coverUrl: './assets/covers/one-pace.jpg?v=1.3.6',
-        description: 'La adaptación definitiva y fiel al manga de One Piece.'
+        description: 'La adaptaciÃ³n definitiva y fiel al manga de One Piece.'
       },
       {
         id: 'darling',
         name: 'Darling in the Franxx',
         badge: 'Temporada 1',
-        episodesCountText: '10 Capítulos',
+        episodesCountText: '10 CapÃ­tulos',
         endpoint: '/videos/darling/',
         coverUrl: './assets/covers/darling.jpg?v=1.3.6',
-        description: 'En un futuro postapocalíptico, los niños pilotean los mechas Franxx.'
+        description: 'En un futuro postapocalÃ­ptico, los niÃ±os pilotean los mechas Franxx.'
       },
       {
         id: '009-re-cyborg',
         name: '009 Re:Cyborg',
-        badge: 'Película',
-        episodesCountText: '1 Película',
+        badge: 'PelÃ­cula',
+        episodesCountText: '1 PelÃ­cula',
         endpoint: '/videos/009-re-cyborg/',
         coverUrl: './assets/covers/009-re-cyborg.jpg?v=1.3.6',
         description: 'En un mundo amenazado por atentados globales, los nueve guerreros cyborg son reactivados para salvar a la humanidad.'
