@@ -43,3 +43,33 @@ export class MediaItem {
     this.coverUrl = coverUrl || '';
   }
 }
+
+/**
+ * Data Model: MangaChapter
+ */
+export class MangaChapter {
+  /**
+   * @param {Object} params
+   * @param {string} params.id
+   * @param {string} params.filename
+   * @param {string} params.title
+   * @param {number} params.chapterNumber
+   * @param {string} params.streamUrl
+   * @param {number} [params.size]
+   * @param {string} params.mangaId
+   * @param {string} params.mangaName
+   * @param {string} [params.coverUrl]
+   */
+  constructor({ id, filename, title, chapterNumber, streamUrl, size, mangaId, mangaName, coverUrl }) {
+    this.id = id;
+    this.filename = filename;
+    this.title = title;
+    this.chapterNumber = chapterNumber;
+    this.streamUrl = streamUrl;
+    this.size = size || 0;
+    this.mangaId = mangaId;
+    this.mangaName = mangaName;
+    this.coverUrl = coverUrl || '';
+  }
+}
+

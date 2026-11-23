@@ -1,4 +1,4 @@
-import { IMediaRepository, MediaItem } from '../contracts/IMediaSource.js';
+import { IMediaRepository, MediaItem, MangaChapter } from '../contracts/IMediaSource.js';
 import { AppConfig } from '../config/app.config.js';
 
 /**
@@ -105,6 +105,113 @@ export class MediaRepository extends IMediaRepository {
         })
       ];
     }
+  }
+
+  /**
+   * Fetches and returns list of manga chapters for given manga config.
+   * @param {Object} mangaConfig
+   * @returns {Promise<Array<MangaChapter>>}
+   */
+  async getMangaChapters(mangaConfig) {
+    if (!mangaConfig || !mangaConfig.endpoint) return [];
+
+    let url = this.connector.buildStreamUrl(mangaConfig.endpoint);
+    try {
+      let response = await fetch(url, {
+        headers: { 'Accept': 'application/json' },
+        cache: 'no-cache'
+      });
+
+      if (!response.ok && AppConfig.api.defaultBaseUrl && !url.startsWith(AppConfig.api.defaultBaseUrl)) {
+        this.connector.clearCustomBackend();
+        const fallbackUrl = `${AppConfig.api.defaultBaseUrl.replace(/\/+$/, '')}${mangaConfig.endpoint}`;
+        response = await fetch(fallbackUrl, {
+          headers: { 'Accept': 'application/json' },
+          cache: 'no-cache'
+        });
+      }
+
+      if (!response.ok) return [];
+      const rawItems = await response.json();
+      return this._parseMangaAutoindex(rawItems, mangaConfig);
+    } catch (e) {
+      if (AppConfig.api.defaultBaseUrl && !url.startsWith(AppConfig.api.defaultBaseUrl)) {
+        try {
+          this.connector.clearCustomBackend();
+          const fallbackUrl = `${AppConfig.api.defaultBaseUrl.replace(/\/+$/, '')}${mangaConfig.endpoint}`;
+          const response = await fetch(fallbackUrl, {
+            headers: { 'Accept': 'application/json' },
+            cache: 'no-cache'
+          });
+          if (response.ok) {
+            const rawItems = await response.json();
+            return this._parseMangaAutoindex(rawItems, mangaConfig);
+          }
+        } catch (retryErr) {
+          console.warn('[MediaRepository] Manga retry failed:', retryErr);
+        }
+      }
+      console.warn(`[MediaRepository] Failed to fetch manga ${mangaConfig.id}:`, e);
+      return [];
+    }
+  }
+
+  /**
+   * @private
+   * @param {Array<Object>} items
+   * @param {Object} mangaConfig
+   * @returns {Array<MangaChapter>}
+   */
+  _parseMangaAutoindex(items, mangaConfig) {
+    const validExtensions = new RegExp(`\\.(${AppConfig.manga.supportedExtensions.join('|')})$`, 'i');
+    const baseEndpoint = mangaConfig.endpoint;
+
+    return items
+      .filter(item => item.type === 'file' && validExtensions.test(item.name))
+      .map(item => {
+        const streamPath = `${baseEndpoint.replace(/\/+$/, '')}/${encodeURIComponent(item.name)}`;
+        const parsed = this._extractMangaMetadata(item.name, mangaConfig.name);
+
+        return new MangaChapter({
+          id: `${mangaConfig.id}_${item.name}`,
+          filename: item.name,
+          title: parsed.title,
+          chapterNumber: parsed.chapterNumber,
+          streamUrl: this.connector.buildStreamUrl(streamPath),
+          size: item.size || 0,
+          mangaId: mangaConfig.id,
+          mangaName: mangaConfig.name,
+          coverUrl: mangaConfig.coverUrl || ''
+        });
+      })
+      .sort((a, b) => a.chapterNumber - b.chapterNumber);
+  }
+
+  /**
+   * @private
+   * @param {string} filename
+   * @param {string} defaultManga
+   * @returns {{ chapterNumber: number, title: string }}
+   */
+  _extractMangaMetadata(filename, defaultManga = '') {
+    const rawBase = filename.replace(/\.[^/.]+$/, '');
+    const match = rawBase.match(/(?:Capitulo|Capítulo|Chapter|Ch\.?)\s*(\d+(?:\.\d+)?)(?:\s*-\s*(.*))?/i);
+
+    if (match) {
+      const chapterNumber = parseFloat(match[1]);
+      const subTitle = match[2] ? match[2].trim() : '';
+      const formattedNum = match[1].length === 3 ? match[1] : (match[1].length < 3 ? match[1].padStart(3, '0') : match[1]);
+      const title = subTitle ? `Capítulo ${formattedNum} - ${subTitle}` : `Capítulo ${formattedNum}`;
+      return { chapterNumber, title };
+    }
+
+    const numMatch = rawBase.match(/\b(\d+(?:\.\d+)?)\b/);
+    if (numMatch) {
+      const chapterNumber = parseFloat(numMatch[1]);
+      return { chapterNumber, title: `Capítulo ${numMatch[1]}` };
+    }
+
+    return { chapterNumber: 0, title: rawBase };
   }
 
   /**
