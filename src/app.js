@@ -1,10 +1,10 @@
-import { AppConfig } from './config/app.config.js?v=1.4.1';
-import { StorageService } from './services/StorageService.js?v=1.4.1';
-import { StreamConnector } from './services/StreamConnector.js?v=1.4.1';
-import { MediaRepository } from './services/MediaRepository.js?v=1.4.1';
-import { PlayerController } from './controllers/PlayerController.js?v=1.4.1';
-import { CatalogController } from './controllers/CatalogController.js?v=1.4.1';
-import { MangaReaderController } from './controllers/MangaReaderController.js?v=1.4.1';
+import { AppConfig } from './config/app.config.js?v=1.4.2';
+import { StorageService } from './services/StorageService.js?v=1.4.2';
+import { StreamConnector } from './services/StreamConnector.js?v=1.4.2';
+import { MediaRepository } from './services/MediaRepository.js?v=1.4.2';
+import { PlayerController } from './controllers/PlayerController.js?v=1.4.2';
+import { CatalogController } from './controllers/CatalogController.js?v=1.4.2';
+import { MangaReaderController } from './controllers/MangaReaderController.js?v=1.4.2';
 
 /**
  * AppBootstrap

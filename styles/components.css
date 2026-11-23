@@ -1151,3 +1151,31 @@ body.manga-reader-active {
   color: var(--text-muted);
 }
 
+/* Manga Loader Progress Bar */
+.manga-loader-text {
+  margin-top: 14px;
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: #ffffff;
+  letter-spacing: 0.02em;
+  text-align: center;
+}
+
+.manga-progress-bar-wrap {
+  width: 220px;
+  height: 5px;
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 999px;
+  margin-top: 10px;
+  overflow: hidden;
+}
+
+.manga-progress-bar-fill {
+  height: 100%;
+  width: 0%;
+  background: var(--accent-netflix);
+  border-radius: 999px;
+  transition: width 0.15s ease-out;
+}
+
+

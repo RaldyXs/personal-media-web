@@ -10,9 +10,9 @@
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23e50914'><polygon points='5 3 19 12 5 21 5 3'/></svg>">
 
   <!-- Modular CSS Architecture -->
-  <link rel="stylesheet" href="./styles/variables.css?v=1.4.1">
-  <link rel="stylesheet" href="./styles/layout.css?v=1.4.1">
-  <link rel="stylesheet" href="./styles/components.css?v=1.4.1">
+  <link rel="stylesheet" href="./styles/variables.css?v=1.4.2">
+  <link rel="stylesheet" href="./styles/layout.css?v=1.4.2">
+  <link rel="stylesheet" href="./styles/components.css?v=1.4.2">
 
   <!-- Mozilla PDF.js CDN for in-browser Manga Reader -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
@@ -242,14 +242,18 @@
       <!-- Reader Canvas Container -->
       <div class="manga-pages-container webtoon-mode" id="manga-pages-container"></div>
 
-      <!-- Reader Loader Overlay -->
+      <!-- Reader Loader Overlay with Real-time Progress Bar -->
       <div id="manga-reader-loader" class="player-loader hidden" aria-live="polite">
         <div class="loader-spinner"></div>
+        <div id="manga-loader-text" class="manga-loader-text">Cargando capítulo...</div>
+        <div class="manga-progress-bar-wrap">
+          <div id="manga-progress-bar-fill" class="manga-progress-bar-fill"></div>
+        </div>
       </div>
     </section>
   </main>
 
   <!-- ES6 Module Entrypoint -->
-  <script type="module" src="./src/app.js?v=1.4.1"></script>
+  <script type="module" src="./src/app.js?v=1.4.2"></script>
 </body>
 </html>

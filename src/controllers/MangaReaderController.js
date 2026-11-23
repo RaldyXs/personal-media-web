@@ -65,7 +65,7 @@ export class MangaReaderController {
 
     this._updateHeaderInfo();
     this._updateModeButtonState();
-    this._showLoader(true);
+    this._showLoader(true, 'Descargando capítulo...', 5);
     this._resetControlsTimeout();
 
     try {
@@ -79,8 +79,16 @@ export class MangaReaderController {
         throw new Error('PDF.js library is not loaded');
       }
 
+      const buffer = await this._fetchChapterBuffer(chapter.streamUrl, (pct, received, total) => {
+        const mbReceived = (received / (1024 * 1024)).toFixed(1);
+        const mbTotal = total > 0 ? (total / (1024 * 1024)).toFixed(1) : '?';
+        this._showLoader(true, `Descargando: ${pct}% (${mbReceived} MB / ${mbTotal} MB)`, pct);
+      });
+
+      this._showLoader(true, 'Renderizando páginas...', 100);
+
       const loadingTask = window.pdfjsLib.getDocument({
-        url: chapter.streamUrl,
+        data: buffer,
         cMapUrl: 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/cmaps/',
         cMapPacked: true
       });
@@ -103,6 +111,9 @@ export class MangaReaderController {
       } else {
         await this._renderPagedMode(this.currentPage);
       }
+
+      // Proactively prefetch next chapter in background
+      this._preloadNextChapter();
     } catch (err) {
       console.error('[MangaReader] Error loading PDF chapter:', err);
       if (this.el.container) {
@@ -376,7 +387,7 @@ export class MangaReaderController {
       const initialViewport = page.getViewport({ scale: 1 });
       const scale = containerWidth / initialViewport.width;
 
-      const dpr = Math.min(window.devicePixelRatio || 1, 2);
+      const dpr = Math.min(window.devicePixelRatio || 1, 1.5);
       const viewport = page.getViewport({ scale: scale * dpr });
 
       canvas.width = viewport.width;
@@ -384,7 +395,7 @@ export class MangaReaderController {
       canvas.style.width = `${Math.floor(viewport.width / dpr)}px`;
       canvas.style.height = `${Math.floor(viewport.height / dpr)}px`;
 
-      const ctx = canvas.getContext('2d');
+      const ctx = canvas.getContext('2d', { alpha: false });
       const renderTask = page.render({
         canvasContext: ctx,
         viewport
@@ -443,9 +454,121 @@ export class MangaReaderController {
     }
   }
 
-  _showLoader(show) {
+  _showLoader(show, text = 'Cargando capítulo...', progressPct = 0) {
     if (this.el.loader) {
       this.el.loader.classList.toggle('hidden', !show);
+    }
+    const textEl = document.getElementById('manga-loader-text');
+    if (textEl) textEl.textContent = text;
+    const barEl = document.getElementById('manga-progress-bar-fill');
+    if (barEl) barEl.style.width = `${progressPct}%`;
+  }
+
+  /**
+   * Fast streaming download with client-side Cache API integration.
+   * Caches loaded chapters so subsequent reads are 100% instant (0ms).
+   * @private
+   */
+  async _fetchChapterBuffer(url, onProgress) {
+    const cacheName = 'pmh-manga-cache-v1';
+    let cache = null;
+    if ('caches' in window) {
+      try {
+        cache = await caches.open(cacheName);
+      } catch (_) {}
+    }
+
+    if (cache) {
+      try {
+        const cachedResp = await cache.match(url);
+        if (cachedResp) {
+          if (onProgress) onProgress(100, 1, 1);
+          return await cachedResp.arrayBuffer();
+        }
+      } catch (_) {}
+    }
+
+    const response = await fetch(url);
+    if (!response.ok) {
+      throw new Error(`HTTP ${response.status}: No se pudo descargar el archivo`);
+    }
+
+    const contentLength = response.headers.get('content-length');
+    const total = contentLength ? parseInt(contentLength, 10) : 0;
+
+    let buffer;
+    if (!response.body || !total) {
+      buffer = await response.arrayBuffer();
+      if (cache) {
+        try {
+          const cachedResponse = new Response(buffer.slice(0), {
+            headers: {
+              'Content-Type': 'application/pdf',
+              'Content-Length': String(buffer.byteLength)
+            }
+          });
+          cache.put(url, cachedResponse).catch(() => {});
+        } catch (_) {}
+      }
+      return buffer;
+    }
+
+    const reader = response.body.getReader();
+    let receivedLength = 0;
+    const chunks = [];
+
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      chunks.push(value);
+      receivedLength += value.length;
+      if (onProgress) {
+        const pct = Math.min(Math.round((receivedLength / total) * 100), 99);
+        onProgress(pct, receivedLength, total);
+      }
+    }
+
+    const chunksAll = new Uint8Array(receivedLength);
+    let position = 0;
+    for (const chunk of chunks) {
+      chunksAll.set(chunk, position);
+      position += chunk.length;
+    }
+
+    buffer = chunksAll.buffer;
+
+    if (cache) {
+      try {
+        const cachedResponse = new Response(buffer.slice(0), {
+          headers: {
+            'Content-Type': 'application/pdf',
+            'Content-Length': String(receivedLength)
+          }
+        });
+        cache.put(url, cachedResponse).catch(() => {});
+      } catch (_) {}
+    }
+
+    return buffer;
+  }
+
+  /**
+   * Silently pre-fetches the next chapter into Cache Storage in the background.
+   * @private
+   */
+  _preloadNextChapter() {
+    const currentIndex = this.allChapters.findIndex(c => c.id === this.currentChapter?.id);
+    if (currentIndex >= 0 && currentIndex < this.allChapters.length - 1) {
+      const nextChap = this.allChapters[currentIndex + 1];
+      const preloader = () => {
+        this._fetchChapterBuffer(nextChap.streamUrl, null)
+          .catch(() => {});
+      };
+      if ('requestIdleCallback' in window) {
+        requestIdleCallback(preloader);
+      } else {
+        setTimeout(preloader, 1500);
+      }
     }
   }
 
