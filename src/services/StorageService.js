@@ -42,4 +42,22 @@ export class StorageService extends IStorageProvider {
     const num = parseFloat(val);
     return isNaN(num) ? defaultValue : num;
   }
+
+  getJson(key, defaultValue = null) {
+    const val = this.get(key);
+    if (!val) return defaultValue;
+    try {
+      return JSON.parse(val);
+    } catch (e) {
+      return defaultValue;
+    }
+  }
+
+  setJson(key, value) {
+    try {
+      this.set(key, JSON.stringify(value));
+    } catch (e) {
+      console.warn(`[StorageService] Failed to write JSON key: ${key}`, e);
+    }
+  }
 }

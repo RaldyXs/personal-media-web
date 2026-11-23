@@ -231,7 +231,15 @@ export class MangaReaderController {
   }
 
   getProgress(mangaId) {
-    return this.storage.getJson(`${AppConfig.storageKeys.mangaProgressPrefix}${mangaId}`);
+    try {
+      if (typeof this.storage.getJson === 'function') {
+        return this.storage.getJson(`${AppConfig.storageKeys.mangaProgressPrefix}${mangaId}`);
+      }
+      const raw = this.storage.get(`${AppConfig.storageKeys.mangaProgressPrefix}${mangaId}`);
+      return raw ? JSON.parse(raw) : null;
+    } catch (_) {
+      return null;
+    }
   }
 
   /* ==========================================================================
@@ -443,15 +451,21 @@ export class MangaReaderController {
 
   _saveProgress() {
     if (!this.currentChapter) return;
-    const data = {
-      chapterId: this.currentChapter.id,
-      chapterNumber: this.currentChapter.chapterNumber,
-      title: this.currentChapter.title,
-      page: this.currentPage,
-      totalPages: this.totalPages,
-      updatedAt: Date.now()
-    };
-    this.storage.setJson(`${AppConfig.storageKeys.mangaProgressPrefix}${this.currentChapter.mangaId}`, data);
+    try {
+      const data = {
+        chapterId: this.currentChapter.id,
+        chapterNumber: this.currentChapter.chapterNumber,
+        title: this.currentChapter.title,
+        page: this.currentPage,
+        totalPages: this.totalPages,
+        updatedAt: Date.now()
+      };
+      if (typeof this.storage.setJson === 'function') {
+        this.storage.setJson(`${AppConfig.storageKeys.mangaProgressPrefix}${this.currentChapter.mangaId}`, data);
+      } else {
+        this.storage.set(`${AppConfig.storageKeys.mangaProgressPrefix}${this.currentChapter.mangaId}`, JSON.stringify(data));
+      }
+    } catch (_) {}
   }
 
   _toggleControls() {
