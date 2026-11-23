@@ -5,7 +5,7 @@
 export const AppConfig = {
   app: {
     name: 'Anime Stream',
-    version: '1.4.0',
+    version: '1.4.1',
     description: 'Minimalist, high-performance streaming & manga client'
   },
   api: {
