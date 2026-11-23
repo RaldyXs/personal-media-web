@@ -96,6 +96,7 @@ export class MangaReaderController {
 
       this._updatePageCounter();
       this._updateChapterNavButtons();
+      this._showLoader(false);
 
       if (this.readingMode === 'webtoon') {
         await this._renderWebtoonMode();
@@ -257,7 +258,7 @@ export class MangaReaderController {
       const wrapper = document.createElement('div');
       wrapper.className = 'manga-page-wrapper';
       wrapper.dataset.pageNum = String(i);
-      wrapper.style.minHeight = `calc(min(100vw, 900px) * ${aspectRatio}px)`;
+      wrapper.style.minHeight = `calc(min(100vw, 900px) * ${aspectRatio})`;
 
       const canvas = document.createElement('canvas');
       canvas.className = 'manga-page-canvas';
@@ -278,6 +279,15 @@ export class MangaReaderController {
 
     const renderedPages = new Set();
 
+    // Immediately pre-render first 3 pages so user sees content immediately
+    for (let p = 1; p <= Math.min(3, this.totalPages); p++) {
+      renderedPages.add(p);
+      const targetWrap = this.el.container.querySelector(`[data-page-num="${p}"]`);
+      if (targetWrap) {
+        this._renderPageToCanvas(p, targetWrap.querySelector('canvas'), targetWrap.querySelector('.manga-page-placeholder'));
+      }
+    }
+
     this.pageObservers = new IntersectionObserver((entries) => {
       entries.forEach(entry => {
         const pageNum = parseInt(entry.target.dataset.pageNum, 10);
@@ -296,9 +306,9 @@ export class MangaReaderController {
         }
       });
     }, {
-      root: null,
-      rootMargin: '600px 0px 600px 0px',
-      threshold: 0.1
+      root: this.el.container,
+      rootMargin: '800px 0px 800px 0px',
+      threshold: 0.05
     });
 
     const wrappers = this.el.container.querySelectorAll('.manga-page-wrapper');
